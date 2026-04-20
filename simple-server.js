@@ -27,26 +27,28 @@ app.post('/api/fortune/generate-text', async (req, res) => {
       });
     }
     
-    const systemPrompt = '你是一位精通易经与东方古典文化的隐世占卜师。请严格按照格式输出完整的签文，不要遗漏任何部分。';
+    const systemPrompt = '你是一位精通易经与东方古典文化的隐世占卜师。请严格按照格式输出完整的签文，内容要精简有力。';
     const userPrompt = `请根据以下用户心境：${userMood}，生成一段神秘东方风格的完整签文。
 
-必须包含以下4个部分，每部分都要有实质内容：
+必须包含以下4个部分：
 
-【签号】用天干地支+生肖格式，如"乙巳签"
+【吉凶】从以下选择一个：上上签、上吉签、中吉签、中平签、下下签
 
-【主签文】必须是完整的四句七言古诗（28个字），每句7字，押韵，如：
-云开月出照庭阶，静待东风次第来。
-莫叹眼前花未发，春深自有燕衔泥。
+【签号】天干地支格式，如"庚辰签"
 
-【易经引】引用《易经》原文卦辞，并给出白话解读，如：
-《易经·乾卦》："初九，潜龙勿用。"白话解：龙潜伏水中，时机未到不可妄动，待时而动方见真章。
+【主签文】四句七言古诗，每句7字，押韵，如：
+云开月朗照庭除，静待东风第一枝。
+莫叹征途多阻滞，冰心一片化春溪。
 
-【卦象】给出卦名、卦象符号（☰☱☲☳☴☵☶☷）及含义，如：
-风雷益（☳☴）象征顺势而为
+【易经引】引用《易经》原文卦辞+白话解，如：
+《易经·乾卦》曰："初九：潜龙勿用。"白话解：龙潜伏水中，时机未到暂不施展，需养精蓄锐。
+
+【卦象】卦名+卦象符号，如：
+乾卦 ☰☰
 
 输出要求：
-- 严格按照【签号】【主签文】【易经引】【卦象】四个标签格式
-- 每部分内容要充实完整
+- 严格按照【吉凶】【签号】【主签文】【易经引】【卦象】五个标签格式
+- 内容精简，不要冗长解释
 - 语言古雅神秘，有文化底蕴`;
     
     const response = await axios.post(
@@ -82,10 +84,13 @@ app.post('/api/fortune/generate-text', async (req, res) => {
     }
     
     // 解析签文内容
+    const fortuneMatch = content.match(/【吉凶】\s*([^\n【]+)/) || 
+                        content.match(/吉凶[:：]\s*([^\n【]+)/) ||
+                        content.match(/([上下中]+[上下吉凶平]+签)/);
+    
     const numberMatch = content.match(/【签号】\s*([^\n【]+)/) || 
                        content.match(/签号[:：]\s*([^\n【]+)/) ||
-                       content.match(/(第[^签]+签)/) ||
-                       content.match(/([上下中]+[上下吉凶平]+签)/);
+                       content.match(/(第[^签]+签)/);
     
     const mainTextMatch = content.match(/【主签文】\s*([^【]+)/) || 
                          content.match(/主签文[:：]\s*([^\n【]+)/) ||
@@ -101,10 +106,11 @@ app.post('/api/fortune/generate-text', async (req, res) => {
     
     res.json({
       success: true,
-      number: numberMatch ? numberMatch[1].trim() : '上上签',
+      fortune: fortuneMatch ? fortuneMatch[1].trim() : '上上签',
+      number: numberMatch ? numberMatch[1].trim() : '庚辰签',
       mainText: mainTextMatch ? mainTextMatch[1].trim() : '花开富贵，心想事成。',
       culturalReference: referenceMatch ? referenceMatch[1].trim() : '《易经》有云："天行健，君子以自强不息。"',
-      hexagram: hexagramMatch ? hexagramMatch[1].trim() : '乾卦 - 天行健，君子以自强不息',
+      hexagram: hexagramMatch ? hexagramMatch[1].trim() : '乾卦 ☰☰',
       rawResponse: content
     });
   } catch (error) {
@@ -136,19 +142,19 @@ ${fortuneText}
 
 请严格按照以下四个部分详细解读，每部分都要有实质性的具体内容，不要空泛：
 
-第一部分：时节呼应
+时节呼应
 说说现在的天气季节（初夏/盛夏/秋季等）跟这个签有什么关系，为什么这个时候抽到这个签特别有意义
 
-第二部分：卦象智慧
+卦象智慧
 用简单的大白话解释这个卦象是什么意思，它告诉我们要懂得什么道理，蕴含什么人生智慧
 
-第三部分：具体指引
+具体指引
 针对这个人现在遇到的困惑或事情：
 1. 核心要点：这件事最关键的是什么
 2. 需要注意什么：有哪些坑要避开
 3. 心态调整：该用什么心态面对
 
-第四部分：行动建议
+行动建议
 给出5条能马上照做的具体建议，每条建议都要像这样写：
 心态调整：把期待转化为准备，以潜龙姿态保持谦逊而自信的心态，相信自己的积累终会在适当时机展现
 面试策略：如云开月出般从容自然，给面试官留下良好第一印象
@@ -161,7 +167,8 @@ ${fortuneText}
 2. 每个建议都要具体可执行，不要空话套话
 3. 结合签文的具体意象来解读
 4. 让人看完就知道该怎么干
-5. 不要用任何特殊符号`;
+5. 不要用任何特殊符号
+6. 标题直接写"时节呼应"、"卦象智慧"等，不要加"第一部分"、"第二部分"等前缀`;
     
     const response = await axios.post(
       'https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation',
@@ -293,6 +300,15 @@ app.post('/api/fortune/generate-image', async (req, res) => {
     if (fortuneText.includes('庭') || fortuneText.includes('阶')) {
       sceneKeywords += '古朴的石阶或庭院、';
     }
+    if (fortuneText.includes('松') || fortuneText.includes('鹤')) {
+      sceneKeywords += '古松、仙鹤、';
+    }
+    if (fortuneText.includes('雾') || fortuneText.includes('冥')) {
+      sceneKeywords += '晨雾缭绕、';
+    }
+    if (fortuneText.includes('苔') || fortuneText.includes('径')) {
+      sceneKeywords += '青苔石径、';
+    }
     
     // 默认元素
     const defaultElements = '枝头绿叶、飘落的花瓣';
@@ -307,14 +323,13 @@ app.post('/api/fortune/generate-image', async (req, res) => {
     const response = await axios.post(
       'https://dashscope.aliyuncs.com/api/v1/services/aigc/text2image/image-synthesis',
       {
-        model: "wanx-v1",
+        model: "wan2.7-image-pro",
         input: {
           prompt: imagePrompt
         },
         parameters: {
           size: "1024*1024",
-          n: 1,
-          style: "<watercolor>"
+          n: 1
         }
       },
       {

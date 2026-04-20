@@ -9,7 +9,8 @@ export interface FortuneData {
 }
 
 export interface FortuneResult {
-  number: string; // 签号
+  fortune: string; // 吉凶等级（上上签、上吉签等）
+  number: string; // 签号（庚辰签等）
   mainText: string; // 主签文
   culturalReference: string; // 文化意象引用
   hexagram: string; // 易经卦象

@@ -11,11 +11,10 @@ export function FortuneCard({ fortune, cardRef }: FortuneCardProps) {
   return (
     <div className="relative max-w-md mx-auto" ref={cardRef}>
 
-
-      {/* 签号标识 */}
+      {/* 吉凶等级标识 */}
       <div className="text-center mb-8">
         <div className="text-2xl font-bold text-primary font-serif relative inline-block">
-          {fortune.number}
+          {fortune.fortune || '上上签'}
           {/* 装饰性横线 */}
           <div className="absolute -left-12 top-1/2 w-10 h-px bg-primary/40"></div>
           <div className="absolute -right-12 top-1/2 w-10 h-px bg-primary/40"></div>
@@ -33,9 +32,9 @@ export function FortuneCard({ fortune, cardRef }: FortuneCardProps) {
         <CardContent className="p-8 relative z-10 flex justify-center items-center h-[560px]">
           {/* 签文内容 - 竖排布局 */}
           <div className="writing-mode-vertical-rl text-start space-y-8">
-            {/* 主签文 */}
+            {/* 签号 + 主签文 */}
             <div className="text-xl text-foreground font-serif leading-loose">
-              {fortune.mainText}
+              【{fortune.number}】{fortune.mainText}
             </div>
             
             {/* 文化引用 */}

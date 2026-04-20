@@ -11,34 +11,39 @@ interface ShakeAnimationProps {
 
 const fortunePool = [
   {
-    number: '上上签',
+    fortune: '上上签',
+    number: '甲子签',
     mainText: '花开富贵，心想事成。贵人相助，事业通达。',
     culturalReference: '《诗经》有云："桃之夭夭，灼灼其华。之子于归，宜其室家。"',
-    hexagram: '乾卦 - 天行健，君子以自强不息'
+    hexagram: '乾卦 ☰☰'
   },
   {
-    number: '中吉签',
+    fortune: '中吉签',
+    number: '乙丑签',
     mainText: '静待时机，厚积薄发。守得云开见月明。',
     culturalReference: '《道德经》曰："上善若水，水善利万物而不争。"',
-    hexagram: '坤卦 - 地势坤，君子以厚德载物'
+    hexagram: '坤卦 ☷☷'
   },
   {
-    number: '上吉签',
+    fortune: '上吉签',
+    number: '丙寅签',
     mainText: '福星高照，喜气盈门。机缘巧合，收获满满。',
     culturalReference: '《论语》云："有朋自远方来，不亦乐乎？"',
-    hexagram: '泰卦 - 天地交泰，万物亨通'
+    hexagram: '泰卦 ☷☰'
   },
   {
-    number: '中平签',
+    fortune: '中平签',
+    number: '丁卯签',
     mainText: '平淡是真，守成是福。静心修身，待时而动。',
     culturalReference: '《中庸》曰："君子中庸，小人反中庸。"',
-    hexagram: '艮卦 - 艮其止，止其所也'
+    hexagram: '艮卦 ☶☶'
   },
   {
-    number: '下签',
+    fortune: '下签',
+    number: '戊辰签',
     mainText: '否极泰来，转机将至。耐心等待，终见曙光。',
     culturalReference: '《易经》云："穷则变，变则通，通则久。"',
-    hexagram: '否卦 - 天地不交，万物不通'
+    hexagram: '否卦 ☷☰'
   }
 ];
 
@@ -103,10 +108,11 @@ export function ShakeAnimation({ onAnimationComplete, userMood }: ShakeAnimation
 
         if (response.data?.success) {
           aiFortuneResult = {
-            number: response.data.number || '上上签',
+            fortune: response.data.fortune || '上上签',
+            number: response.data.number || '庚辰签',
             mainText: response.data.mainText || '花开富贵，心想事成。',
             culturalReference: response.data.culturalReference || '《易经》有云："天行健，君子以自强不息。"',
-            hexagram: response.data.hexagram || '乾卦 - 天行健，君子以自强不息',
+            hexagram: response.data.hexagram || '乾卦 ☰☰',
             isAI: true
           };
           

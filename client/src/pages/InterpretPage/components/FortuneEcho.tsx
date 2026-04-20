@@ -27,13 +27,14 @@ export function FortuneEcho({ fortune }: FortuneEchoProps) {
           
           {/* 完整签文展示 */}
           <div className="mt-4 text-center">
+            {/* 吉凶等级 */}
             <div className="text-2xl font-bold text-primary font-serif mb-4">
-              {fortune.number}
+              {fortune.fortune || '上上签'}
             </div>
             
-            {/* 主签文 */}
+            {/* 签号 + 主签文 */}
             <div className="text-xl text-foreground font-serif leading-loose mb-4">
-              {fortune.mainText}
+              【{fortune.number}】{fortune.mainText}
             </div>
             
             {/* 文化引用 */}
