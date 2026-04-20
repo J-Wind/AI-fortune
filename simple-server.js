@@ -14,7 +14,7 @@ app.use(express.static(path.join(__dirname, 'dist/client')));
 app.post('/api/fortune/generate-text', async (req, res) => {
   try {
     const { userMood } = req.body;
-    const apiKey = process.env.AI_API_KEY;
+    const apiKey = process.env.AI_API_KEY || 'sk-368063b63be646edac7d2fa4bceb069a';
     
     console.log('AI_API_KEY exists:', !!apiKey);
     console.log('AI_API_KEY length:', apiKey ? apiKey.length : 0);
@@ -106,7 +106,7 @@ app.post('/api/fortune/generate-text', async (req, res) => {
 app.post('/api/fortune/generate-interpretation', async (req, res) => {
   try {
     const { fortuneText } = req.body;
-    const apiKey = process.env.AI_API_KEY;
+    const apiKey = process.env.AI_API_KEY || 'sk-368063b63be646edac7d2fa4bceb069a';
     
     if (!apiKey) {
       return res.status(500).json({ 
