@@ -465,7 +465,7 @@ ${mainElements.map((el, i) => `${i + 1}. ${el}`).join('\n')}
           ]
         },
         parameters: {
-          size: "1024*1024",
+          size: "1344*768",
           n: 1,
           negative_prompt: negativePrompt
         }

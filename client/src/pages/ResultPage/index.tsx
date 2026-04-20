@@ -153,22 +153,25 @@ export default function ResultPage() {
         <div className="absolute bottom-1/3 right-1/4 w-48 h-48 bg-primary rounded-full blur-2xl animate-pulse delay-1000"></div>
       </div>
 
-      <div className="relative z-10 max-w-md mx-auto space-y-4">
-        {/* 页面标题 */}
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-primary font-serif mb-2">
-            您的运势签文
-          </h1>
-          <p className="text-sm text-muted-foreground font-serif">
-            天机已现，缘起缘落
-          </p>
+      <div className="relative z-10 max-w-md mx-auto h-screen flex flex-col justify-between py-6">
+        {/* 上半部分：标题 + 签文卡片 */}
+        <div className="flex-1 flex flex-col justify-center space-y-3">
+          {/* 页面标题 */}
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-primary font-serif mb-2">
+              您的运势签文
+            </h1>
+            <p className="text-sm text-muted-foreground font-serif">
+              天机已现，缘起缘落
+            </p>
+          </div>
+
+          {/* 签文卡片 */}
+          <FortuneCard fortune={fortuneResult} cardRef={cardRef} />
         </div>
 
-        {/* 签文卡片 */}
-        <FortuneCard fortune={fortuneResult} cardRef={cardRef} />
-
-        {/* 操作按钮区域 */}
-        <div className="space-y-3">
+        {/* 下半部分：操作按钮 - 固定在底部 */}
+        <div className="pt-4 pb-2">
           <Button
             onClick={handleInterpret}
             className="w-full h-12 bg-transparent border-2 border-primary text-primary font-serif text-base hover:bg-primary/10 transition-all duration-300 hover:scale-105"
@@ -176,10 +179,9 @@ export default function ResultPage() {
             variant="outline"
           >
             <Sparkles className="w-4 h-4 mr-2" />
-            深度解读
+            深度解读此签
           </Button>
         </div>
-
 
       </div>
     </div>
