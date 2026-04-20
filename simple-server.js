@@ -280,50 +280,92 @@ app.post('/api/fortune/generate-image', async (req, res) => {
       });
     }
     
-    // 根据签文内容反推关键词生成图片提示词
-    let sceneKeywords = '';
-    
-    // 根据签文内容提取场景关键词
-    if (fortuneText.includes('云') || fortuneText.includes('天')) {
-      sceneKeywords += '云雾缭绕的天空、';
+    // 根据签文内容构建场景描述
+    let mainElements = [];
+    let atmosphere = '';
+    let timeOfDay = '';
+
+    // 提取主要视觉元素
+    if (fortuneText.includes('月') || fortuneText.includes('明月')) {
+      mainElements.push('一轮皎洁的圆月高悬夜空');
+      timeOfDay = '夜晚';
     }
-    if (fortuneText.includes('月') || fortuneText.includes('夜')) {
-      sceneKeywords += '皎洁的明月、';
+    if (fortuneText.includes('云') || fortuneText.includes('云开')) {
+      mainElements.push('缭绕的云雾，云层散开露出光芒');
     }
-    if (fortuneText.includes('风')) {
-      sceneKeywords += '飞舞的燕子或仙鹤、';
+    if (fortuneText.includes('花') || fortuneText.includes('花开')) {
+      mainElements.push('盛开的梅花或桃花');
+      atmosphere = '春意盎然';
     }
-    if (fortuneText.includes('花') || fortuneText.includes('春')) {
-      sceneKeywords += '盛开的梅花或桃花、';
-    }
-    if (fortuneText.includes('水') || fortuneText.includes('龙') || fortuneText.includes('潜')) {
-      sceneKeywords += '静谧的湖面或溪流、';
+    if (fortuneText.includes('水') || fortuneText.includes('溪') || fortuneText.includes('江')) {
+      mainElements.push('静谧的湖面或潺潺溪流');
     }
     if (fortuneText.includes('山') || fortuneText.includes('峰')) {
-      sceneKeywords += '远山如黛、';
+      mainElements.push('远山如黛，层峦叠嶂');
     }
-    if (fortuneText.includes('庭') || fortuneText.includes('阶')) {
-      sceneKeywords += '古朴的石阶或庭院、';
+    if (fortuneText.includes('松')) {
+      mainElements.push('苍劲的古松');
     }
-    if (fortuneText.includes('松') || fortuneText.includes('鹤')) {
-      sceneKeywords += '古松、仙鹤、';
+    if (fortuneText.includes('鹤') || fortuneText.includes('鸟')) {
+      mainElements.push('飞翔的仙鹤或飞鸟');
     }
-    if (fortuneText.includes('雾') || fortuneText.includes('冥')) {
-      sceneKeywords += '晨雾缭绕、';
+    if (fortuneText.includes('舟') || fortuneText.includes('船')) {
+      mainElements.push('一叶扁舟');
     }
-    if (fortuneText.includes('苔') || fortuneText.includes('径')) {
-      sceneKeywords += '青苔石径、';
+    if (fortuneText.includes('亭') || fortuneText.includes('楼')) {
+      mainElements.push('古朴的亭台楼阁');
     }
-    
-    // 默认元素
-    const defaultElements = '枝头绿叶、飘落的花瓣';
-    
+    if (fortuneText.includes('竹')) {
+      mainElements.push('翠绿的竹林');
+    }
+    if (fortuneText.includes('雪') || fortuneText.includes('冬')) {
+      mainElements.push('皑皑白雪');
+      atmosphere = '冬日清寂';
+    }
+    if (fortuneText.includes('雨')) {
+      mainElements.push('细雨蒙蒙');
+    }
+    if (fortuneText.includes('风')) {
+      mainElements.push('微风吹拂');
+    }
+    if (fortuneText.includes('日') || fortuneText.includes('阳') || fortuneText.includes('曙')) {
+      mainElements.push('初升的朝阳或夕阳余晖');
+      timeOfDay = '清晨或黄昏';
+    }
+    if (fortuneText.includes('星')) {
+      mainElements.push('璀璨星空');
+      timeOfDay = '深夜';
+    }
+    if (fortuneText.includes('桥')) {
+      mainElements.push('古石桥');
+    }
+    if (fortuneText.includes('路') || fortuneText.includes('径') || fortuneText.includes('道')) {
+      mainElements.push('蜿蜒的小径');
+    }
+
+    // 如果没有匹配到特定元素，使用默认场景
+    if (mainElements.length === 0) {
+      mainElements = ['远山近水', '几株古树', '飘落的落叶'];
+      atmosphere = '宁静致远';
+      timeOfDay = '黄昏';
+    }
+
     const imagePrompt = `中国传统水墨画风格，意境深远，古风韵味。
-画面主体：${sceneKeywords}${defaultElements}
-艺术风格：淡雅水墨色调，大量留白，像宋代文人画家的作品
-氛围：宁静致远，神秘东方美学，有文化底蕴
-构图：画面要有层次感，近景中景远景分明
-色彩：以黑白灰为主，点缀淡淡的青绿色或赭石色`;
+
+画面必须包含以下核心元素（按重要性排序）：
+${mainElements.map((el, i) => `${i + 1}. ${el}`).join('\n')}
+
+时间设定：${timeOfDay || '黄昏时分'}
+整体氛围：${atmosphere || '宁静神秘'}
+
+艺术风格要求：
+- 淡雅水墨色调，大量留白
+- 像宋代文人画家的作品（如马远、夏圭的风格）
+- 构图有层次感：近景、中景、远景分明
+- 色彩以黑白灰为主，点缀淡淡的青绿色或赭石色
+- 画面要有诗意和禅意
+
+特别注意：如果签文提到"月"或"明月"，月亮必须是画面的焦点之一，清晰可见且占据重要位置`;
     
     // 第一步：提交图片生成任务
     const submitResponse = await axios.post(

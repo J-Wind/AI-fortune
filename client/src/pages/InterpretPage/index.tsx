@@ -18,7 +18,11 @@ export default function InterpretPage() {
   const { 
     fortuneResult, 
     interpretationResult,
-    setInterpretationResult
+    setInterpretationResult,
+    resetFormData,
+    resetFortuneResult,
+    resetInterpretationResult,
+    resetFortuneImage
   } = useFortuneStore();
   
   const [isGenerating, setIsGenerating] = useState(false);
@@ -166,8 +170,12 @@ export default function InterpretPage() {
     }
   }, [interpretationResult, navigate]);
 
-  const handleBackToResult = () => {
-    navigate('/fortune-result');
+  const handleBackToHome = () => {
+    resetFormData();
+    resetFortuneResult();
+    resetInterpretationResult();
+    resetFortuneImage();
+    navigate('/');
   };
 
   // 渲染错误状态
@@ -185,8 +193,8 @@ export default function InterpretPage() {
               <Button onClick={handleGenerateInterpretation} variant="default">
                 重试解读
               </Button>
-              <Button onClick={() => navigate('/fortune-result')} variant="outline">
-                返回签文
+              <Button onClick={() => { resetFormData(); resetFortuneResult(); resetInterpretationResult(); resetFortuneImage(); navigate('/'); }} variant="outline">
+                返回首页
               </Button>
             </div>
           </CardContent>
@@ -201,11 +209,11 @@ export default function InterpretPage() {
         <div className="text-center">
           <div className="text-lg text-muted-foreground">加载中...</div>
           <Button 
-            onClick={() => navigate('/fortune-result')}
+            onClick={() => { resetFormData(); resetFortuneResult(); resetInterpretationResult(); resetFortuneImage(); navigate('/'); }}
             className="mt-4"
             variant="outline"
           >
-            返回签文页面
+            返回首页
           </Button>
         </div>
       </div>
@@ -225,11 +233,11 @@ export default function InterpretPage() {
         <div className="relative z-10 max-w-md mx-auto mb-8">
           <div className="flex justify-between items-center">
             <Button
-              onClick={handleBackToResult}
+              onClick={handleBackToHome}
               className="bg-transparent border border-primary/30 text-primary hover:bg-primary/10 font-serif"
               size="sm"
             >
-              返回签文
+              返回首页
             </Button>
             
             {/* 分享按钮 */}
