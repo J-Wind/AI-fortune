@@ -24,7 +24,7 @@ export default function InfoCollectionPage() {
   };
 
   const handleSeasonFeelChange = (seasonFeel: string) => {
-    setFormData({ seasonFeel });
+    setFormData({ seasonFeel: seasonFeel });
   };
 
 
@@ -43,11 +43,9 @@ export default function InfoCollectionPage() {
       hasSeasonFeel: formData.seasonFeel.length > 0
     });
 
-    // 跳转到抽签动画页
     navigate('/draw');
   };
 
-  // 组件挂载时清空表单数据
   React.useEffect(() => {
     resetFormData();
     logger.info('表单数据已重置为空');
@@ -59,32 +57,29 @@ export default function InfoCollectionPage() {
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
-      {/* 背景渐变效果 */}
       <div className="absolute inset-0 bg-gradient-to-b from-gray-900 to-black"></div>
       
-      {/* 动态光效 */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute bottom-1/3 right-1/4 w-48 h-48 bg-primary rounded-full blur-2xl animate-pulse delay-1000"></div>
       </div>
       
-      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center p-6">
-        {/* Loading首屏 */}
+      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center p-4">
         {!showForm ? (
-          <div className="text-center space-y-12">
+          <div className="text-center space-y-8">
             <div className="flex flex-col items-center">
-              <div className="h-12 w-px bg-primary mb-4"></div>
-              <h1 className="text-5xl font-serif font-bold text-primary writing-mode-vertical-rl">
+              <div className="h-8 w-px bg-primary mb-3"></div>
+              <h1 className="text-4xl font-serif font-bold text-primary writing-mode-vertical-rl">
                 问心卜运
               </h1>
-              <div className="h-12 w-px bg-primary mt-4"></div>
+              <div className="h-8 w-px bg-primary mt-3"></div>
             </div>
-            <p className="text-muted-foreground text-lg max-w-md mx-auto">
+            <p className="text-muted-foreground text-base max-w-md mx-auto">
                探索内心深处的智慧
             </p>
             <Button
               onClick={handleEnterApp}
-              className="h-16 px-12 bg-gradient-to-r from-primary to-secondary text-primary-foreground font-semibold text-xl rounded-full shadow-2xl shadow-gold hover:shadow-gold-glow hover:scale-110 transition-all duration-300"
+              className="h-12 px-8 bg-gradient-to-r from-primary to-secondary text-primary-foreground font-semibold text-lg rounded-full shadow-2xl shadow-gold hover:shadow-gold-glow hover:scale-110 transition-all duration-300"
               size="lg"
             >
               算一卦
@@ -92,11 +87,8 @@ export default function InfoCollectionPage() {
           </div>
         ) : (
           <>
-
-            
-            {/* 输入卡片 */}
             <Card className="w-full max-w-md backdrop-blur-md bg-card/60 border border-primary/20 shadow-2xl shadow-gold">
-              <CardContent className="p-8 space-y-8">
+              <CardContent className="p-5 space-y-4">
                 <ThoughtInput
                   value={formData.thought}
                   onChange={handleThoughtChange}
@@ -117,7 +109,7 @@ export default function InfoCollectionPage() {
                 <Button
                   onClick={handleSubmit}
                   disabled={!isFormValid()}
-                  className="w-full h-14 bg-gradient-to-r from-primary to-secondary text-primary-foreground font-semibold text-lg rounded-full shadow-lg shadow-gold hover:shadow-gold-glow hover:scale-105 transition-all duration-300"
+                  className="w-full h-11 bg-gradient-to-r from-primary to-secondary text-primary-foreground font-semibold text-base rounded-full shadow-lg shadow-gold hover:shadow-gold-glow hover:scale-105 transition-all duration-300"
                   size="lg"
                 >
                   开始

@@ -9,8 +9,8 @@ interface SeasonFeelInputProps {
 
 export function SeasonFeelInput({ value, onChange }: SeasonFeelInputProps) {
   return (
-    <div className="space-y-2">
-      <Label htmlFor="seasonFeel" className="text-base font-medium text-left">
+    <div className="space-y-1.5">
+      <Label htmlFor="seasonFeel" className="text-sm font-medium text-left">
         时节感受
       </Label>
       <Textarea
@@ -18,9 +18,9 @@ export function SeasonFeelInput({ value, onChange }: SeasonFeelInputProps) {
         placeholder="此时此地，你感受到的季节气息（选填）"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="min-h-[80px] resize-none"
+        className="min-h-[60px] resize-none text-sm"
       />
-      <p className="text-sm text-muted-foreground text-left">
+      <p className="text-xs text-muted-foreground text-left">
         用于引入自然意象，增强运势解读的个性化
       </p>
     </div>

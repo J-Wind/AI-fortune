@@ -18,23 +18,23 @@ const moodOptions = [
 
 export function MoodSelector({ value, onChange, showError = false }: MoodSelectorProps) {
   return (
-    <div className="space-y-3">
-      <Label className="text-base font-medium text-left w-full">
+    <div className="space-y-2">
+      <Label className="text-sm font-medium text-left w-full">
         当前心境 <span className="text-destructive">*</span>
       </Label>
-      <RadioGroup value={value} onValueChange={onChange} className="space-y-3">
+      <RadioGroup value={value} onValueChange={onChange} className="space-y-2">
         {moodOptions.map((mood) => (
-          <div key={mood.value} className="flex items-start space-x-3">
-            <RadioGroupItem value={mood.value} id={mood.value} />
+          <div key={mood.value} className="flex items-start space-x-2.5">
+            <RadioGroupItem value={mood.value} id={mood.value} className="mt-0.5" />
             <Label htmlFor={mood.value} className="flex flex-col cursor-pointer text-left items-start">
-              <span className="font-medium">{mood.label}</span>
-              <span className="text-sm text-muted-foreground text-left">{mood.description}</span>
+              <span className="font-medium text-sm">{mood.label}</span>
+              <span className="text-xs text-muted-foreground text-left">{mood.description}</span>
             </Label>
           </div>
         ))}
       </RadioGroup>
       {showError && !value && (
-        <p className="text-sm text-destructive text-left">
+        <p className="text-xs text-destructive text-left">
           请选择当前心境
         </p>
       )}
