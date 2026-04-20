@@ -326,7 +326,16 @@ app.post('/api/fortune/generate-image', async (req, res) => {
       {
         model: "wan2.7-image-pro",
         input: {
-          prompt: imagePrompt
+          messages: [
+            {
+              role: "user",
+              content: [
+                {
+                  text: imagePrompt
+                }
+              ]
+            }
+          ]
         },
         parameters: {
           size: "1024*1024",
@@ -369,7 +378,8 @@ app.post('/api/fortune/generate-image', async (req, res) => {
       const taskStatus = statusResponse.data.output?.task_status;
       
       if (taskStatus === 'SUCCEEDED') {
-        imageUrl = statusResponse.data.output?.results?.[0]?.url || '';
+        // wan2.7-image-pro 的返回格式
+        imageUrl = statusResponse.data.output?.choices?.[0]?.message?.content?.[0]?.image || '';
         break;
       } else if (taskStatus === 'FAILED') {
         throw new Error('图片生成任务失败');
