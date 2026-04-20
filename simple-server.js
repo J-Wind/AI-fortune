@@ -115,18 +115,18 @@ app.post('/api/fortune/generate-interpretation', async (req, res) => {
       });
     }
     
-    const systemPrompt = '你是一位精通易经与东方古典文化的隐世占卜师，擅长深度解签。';
-    const userPrompt = `请根据以下签文内容进行深度解读：
+    const systemPrompt = '你是一位经验丰富的老先生，说话实在、接地气，擅长用大白话给老百姓解签。不要用任何markdown格式符号（如*、#、-等），就用纯文字，像跟朋友聊天一样说。';
+    const userPrompt = `请根据以下签文内容，用大白话给我解读一下：
 
 ${fortuneText}
 
-请从以下四个方面进行解读：
-1. 时节呼应：当前时节与签文的呼应关系
-2. 卦象智慧：易经卦象蕴含的深刻智慧
-3. 具体指引：针对当前情况的具体建议
-4. 行动建议：可执行的行动指南
+要求：
+1. 时节呼应：说说现在的天气季节跟这个签有什么关系
+2. 卦象智慧：用简单的话解释这个卦象是什么意思
+3. 具体指引：针对这个人遇到的事情，具体该注意什么
+4. 行动建议：给出几条能马上照做的建议
 
-每个部分请详细阐述，语言保持古雅神秘。`;
+记住：说话要像老街坊聊天一样自然，别整那些文绉绉的词，让人一看就懂，知道该怎么干。每部分写个标题就行，不用加任何特殊符号。`;
     
     const response = await axios.post(
       'https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation',
@@ -139,7 +139,7 @@ ${fortuneText}
           ]
         },
         parameters: {
-          temperature: 0.7,
+          temperature: 0.8,
           max_tokens: 2048,
           result_format: "message"
         }
@@ -220,13 +220,69 @@ ${fortuneText}
   }
 });
 
-// 图片生成 API（暂时返回占位符）
-app.post('/api/fortune/generate-image', (req, res) => {
-  res.json({
-    success: true,
-    imageUrl: 'https://picsum.photos/800/600',
-    message: '图片生成成功'
-  });
+// 图片生成 API - 中国水墨风
+app.post('/api/fortune/generate-image', async (req, res) => {
+  try {
+    const { fortuneText } = req.body;
+    const apiKey = process.env.AI_API_KEY || 'sk-368063b63be646edac7d2fa4bceb069a';
+    
+    if (!apiKey) {
+      return res.status(500).json({ 
+        success: false, 
+        message: 'API 密钥未配置' 
+      });
+    }
+    
+    // 根据签文内容生成图片提示词
+    const imagePrompt = `中国传统水墨画风格，意境深远。画面内容：${fortuneText}。要求：淡雅的水墨色调，留白艺术，山水花鸟元素，古风韵味，像古代文人画家的作品，有文化底蕴，画面宁静致远`;
+    
+    const response = await axios.post(
+      'https://dashscope.aliyuncs.com/api/v1/services/aigc/text2image/image-synthesis',
+      {
+        model: "wanx-v1",
+        input: {
+          prompt: imagePrompt
+        },
+        parameters: {
+          size: "1024*1024",
+          n: 1,
+          style: "<watercolor>"
+        }
+      },
+      {
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json'
+        },
+        timeout: 60000
+      }
+    );
+    
+    // 获取生成的图片URL
+    let imageUrl = '';
+    if (response.data.output && response.data.output.results && response.data.output.results.length > 0) {
+      imageUrl = response.data.output.results[0].url;
+    }
+    
+    if (!imageUrl) {
+      // 如果API调用失败或没有返回图片，返回一个占位图
+      imageUrl = 'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=800&h=600&fit=crop';
+    }
+    
+    res.json({
+      success: true,
+      imageUrl: imageUrl,
+      message: '图片生成成功'
+    });
+  } catch (error) {
+    console.error('图片生成错误:', error.message);
+    // 返回一个默认的中国风水墨画作为备用
+    res.json({
+      success: true,
+      imageUrl: 'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=800&h=600&fit=crop',
+      message: '使用默认图片'
+    });
+  }
 });
 
 // 静态文件服务

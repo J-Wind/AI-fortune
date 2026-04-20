@@ -265,7 +265,7 @@ export default function InterpretPage() {
           <div className="flex flex-col items-center space-y-4">
             <div className="flex items-center text-primary font-serif text-lg">
               <Sparkles className="w-5 h-5 mr-2" />
-              AI深度解读已完成
+              签文深度解读完成
             </div>
             <p className="text-muted-foreground text-sm">请查看下方四个模块的详细解读内容</p>
           </div>
