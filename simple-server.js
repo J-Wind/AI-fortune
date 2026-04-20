@@ -13,7 +13,7 @@ app.use(express.static(path.join(__dirname, 'dist/client')));
 // 签文生成 API
 app.post('/api/fortune/generate-text', async (req, res) => {
   try {
-    const { userMood } = req.body;
+    const { userMood, userThought, seasonFeel } = req.body;
     const apiKey = process.env.AI_API_KEY || 'sk-368063b63be646edac7d2fa4bceb069a';
     
     console.log('AI_API_KEY exists:', !!apiKey);
@@ -27,10 +27,14 @@ app.post('/api/fortune/generate-text', async (req, res) => {
       });
     }
     
-    const systemPrompt = '你是一位精通易经与东方古典文化的隐世占卜师。请严格按照格式输出完整的签文，内容要精简有力。';
-    const userPrompt = `请根据以下用户心境：${userMood}，生成一段神秘东方风格的完整签文。
+    const systemPrompt = '你是一位精通易经与东方古典文化的隐世占卜师。请严格按照格式输出完整的签文，内容要精简有力。每次根据用户输入生成不同的签文，不要重复。';
+    const userPrompt = `请根据以下用户信息，生成一段神秘东方风格的完整签文：
 
-必须包含以下4个部分：
+用户心中所念：${userThought || '未填写'}
+用户当前心境：${userMood || '平静'}
+时节感受：${seasonFeel || '未填写'}
+
+必须包含以下5个部分：
 
 【吉凶】从以下选择一个：上上签、上吉签、中吉签、中平签、下下签
 
@@ -48,6 +52,7 @@ app.post('/api/fortune/generate-text', async (req, res) => {
 
 输出要求：
 - 严格按照【吉凶】【签号】【主签文】【易经引】【卦象】五个标签格式
+- 主签文必须根据用户输入的内容生成，每句7字，押韵
 - 内容精简，不要冗长解释
 - 语言古雅神秘，有文化底蕴`;
     

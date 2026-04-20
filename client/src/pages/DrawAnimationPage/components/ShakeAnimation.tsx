@@ -7,6 +7,8 @@ import { fortuneTextControllerGenerateFortuneText } from '@/api/gen';
 interface ShakeAnimationProps {
   onAnimationComplete: (fortune: any) => void;
   userMood: string;
+  userThought: string;
+  seasonFeel: string;
 }
 
 const fortunePool = [
@@ -96,7 +98,9 @@ export function ShakeAnimation({ onAnimationComplete, userMood }: ShakeAnimation
         logger.info('开始调用 fortuneTextControllerGenerateFortuneText API');
         const response = await fortuneTextControllerGenerateFortuneText({
           body: {
-            mood: userMood
+            mood: userMood,
+            thought: userThought,
+            seasonFeel: seasonFeel
           }
         });
         

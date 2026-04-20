@@ -199,6 +199,14 @@
           "userMood": {
             "type": "string",
             "description": "用户当前心境或想法"
+          },
+          "thought": {
+            "type": "string",
+            "description": "用户心中所念"
+          },
+          "seasonFeel": {
+            "type": "string",
+            "description": "时节感受"
           }
         },
         "required": [

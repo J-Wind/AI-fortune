@@ -104,6 +104,8 @@ export default function DrawAnimationPage() {
           <ShakeAnimation 
             onAnimationComplete={handleAnimationComplete} 
             userMood={formData.mood}
+            userThought={formData.thought}
+            seasonFeel={formData.seasonFeel}
           />
         )}
         
