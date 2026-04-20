@@ -2,10 +2,10 @@ import React, { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence, useAnimation } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
 import { logger } from '@lark-apaas/client-toolkit/logger';
-import { fortuneTextControllerGenerateFortuneText } from '@/api/gen';
+import { fortuneTextControllerGenerateFortuneText, fortuneControllerGenerateImage } from '@/api/gen';
 
 interface ShakeAnimationProps {
-  onAnimationComplete: (fortune: any) => void;
+  onComplete: (fortune: any) => void;
   userMood: string;
   userThought: string;
   seasonFeel: string;
@@ -49,16 +49,15 @@ const fortunePool = [
   }
 ];
 
-export function ShakeAnimation({ onAnimationComplete, userMood }: ShakeAnimationProps) {
+export function ShakeAnimation({ onComplete, userMood, userThought, seasonFeel }: ShakeAnimationProps) {
   const animationControls = useAnimation();
   const [isAnimating, setIsAnimating] = useState(true);
-  const [showAnimation, setShowAnimation] = useState(true); // 控制动画组件的显示/隐藏
-  const [fortune, setFortune] = useState<any>(null);
-  const [isGenerating, setIsGenerating] = useState(false); // AI签文生成状态
-  const hasCompletedRef = useRef(false); // 使用 ref 来跟踪完成状态，避免重复触发
+  const [showAnimation, setShowAnimation] = useState(true);
+  const [statusText, setStatusText] = useState('摇签中...');
+  const [statusSubtext, setStatusSubtext] = useState('天机正在降临...');
+  const hasCompletedRef = useRef(false);
 
   useEffect(() => {
-    // 启动摇签动画循环
     const startShakeAnimation = async () => {
       await animationControls.start({
         rotate: [0, -45, 45, -30, 30, 0],
@@ -74,28 +73,16 @@ export function ShakeAnimation({ onAnimationComplete, userMood }: ShakeAnimation
     startShakeAnimation();
   }, [animationControls]);
 
-   useEffect(() => {
-    // 添加调试日志，确认useEffect被触发
-    logger.info('ShakeAnimation useEffect 触发', { 
-      hasCompleted: hasCompletedRef.current,
-      userMood: userMood 
-    });
-    
-    // 如果已经完成，直接返回
+  useEffect(() => {
     if (hasCompletedRef.current) return;
-    
-    let aiFortuneResult: any = null;
 
-    const generateAIFortune = async () => {
-      setIsGenerating(true);
+    const generateAll = async () => {
+      let fortuneResult: any = null;
+
       try {
-        logger.info('开始生成AI签文', { userMood });
-        
-        // 添加调试日志，确认函数被调用
-        logger.info('准备调用AI签文生成API');
-        
-        // 调用AI签文生成API
-        logger.info('开始调用 fortuneTextControllerGenerateFortuneText API');
+        setStatusText('签文生成中...');
+        setStatusSubtext('天机正在降临...');
+
         const response = await fortuneTextControllerGenerateFortuneText({
           body: {
             mood: userMood,
@@ -103,15 +90,9 @@ export function ShakeAnimation({ onAnimationComplete, userMood }: ShakeAnimation
             seasonFeel: seasonFeel
           }
         });
-        
-        logger.info('AI签文生成API调用完成', { 
-          status: response.status,
-          hasData: !!response.data,
-          dataKeys: response.data ? Object.keys(response.data) : []
-        });
 
         if (response.data?.success) {
-          aiFortuneResult = {
+          fortuneResult = {
             fortune: response.data.fortune || '上上签',
             number: response.data.number || '庚辰签',
             mainText: response.data.mainText || '花开富贵，心想事成。',
@@ -119,82 +100,55 @@ export function ShakeAnimation({ onAnimationComplete, userMood }: ShakeAnimation
             hexagram: response.data.hexagram || '乾卦 ☰☰',
             isAI: true
           };
-          
-          setFortune(aiFortuneResult);
-          logger.info('AI签文生成成功', { fortuneNumber: aiFortuneResult.number });
-          
-          // 签文生成成功，立即停止动画并跳转
-          triggerAnimationComplete(aiFortuneResult);
         } else {
-          // AI生成失败，使用默认签文
           const randomIndex = Math.floor(Math.random() * fortunePool.length);
-          const defaultFortune = fortunePool[randomIndex];
-          aiFortuneResult = defaultFortune;
-          setFortune(defaultFortune);
-          logger.warn('AI签文生成失败，使用默认签文', { 
-            message: response.data?.message || '未知错误',
-            fortuneNumber: defaultFortune.number 
-          });
-          
-          // 使用默认签文时也立即停止动画
-          triggerAnimationComplete(defaultFortune);
+          fortuneResult = fortunePool[randomIndex];
         }
+
+        setStatusText('绘制灵图中...');
+        setStatusSubtext('水墨丹青正在成型...');
+
+        try {
+          const imageResult = await fortuneControllerGenerateImage({
+            body: {
+              fortuneText: fortuneResult.mainText,
+              imageRatio: "16:9"
+            }
+          });
+          fortuneResult.imageUrl = imageResult.data?.imageUrl;
+        } catch (imageError) {
+          logger.warn('图片生成失败', { error: imageError instanceof Error ? imageError.message : '未知错误' });
+        }
+
       } catch (error) {
-        // AI调用异常，使用默认签文
+        logger.error('AI签文生成异常', { error: error instanceof Error ? error.message : '未知错误' });
         const randomIndex = Math.floor(Math.random() * fortunePool.length);
-        const defaultFortune = fortunePool[randomIndex];
-        aiFortuneResult = defaultFortune;
-        setFortune(defaultFortune);
-        
-        logger.error('AI签文生成异常', {
-          error: error instanceof Error ? error.message : '未知错误',
-          fortuneNumber: defaultFortune.number
-        });
-        
-        // 异常情况下也立即停止动画
-        triggerAnimationComplete(defaultFortune);
-      } finally {
-        setIsGenerating(false);
+        fortuneResult = fortunePool[randomIndex];
       }
+
+      triggerComplete(fortuneResult);
     };
 
-    // 删除 checkAnimationAndComplete 函数，直接使用 triggerAnimationComplete
-
-    const triggerAnimationComplete = async (fortuneData: any) => {
-      if (hasCompletedRef.current) return; // 防止重复触发
+    const triggerComplete = async (fortuneData: any) => {
+      if (hasCompletedRef.current) return;
       hasCompletedRef.current = true;
-      
-      // 停止动画循环
+
       await animationControls.stop();
-      
-      // 启动优雅淡出动画
+
       setTimeout(() => {
         setShowAnimation(false);
-        
-        // 在淡出动画完成后触发回调
+
         setTimeout(() => {
-          onAnimationComplete(fortuneData);
-          logger.info('抽签动画完成', {
-            fortuneNumber: fortuneData.number,
-            isAI: fortuneData.isAI || false
-          });
-        }, 500); // 淡出动画持续时间
-      }, 300); // 延迟开始淡出，让用户看到完成状态
+          onComplete(fortuneData);
+        }, 500);
+      }, 300);
     };
 
-    // 页面加载时立即开始生成签文
-    logger.info('准备调用 generateAIFortune 函数');
-    generateAIFortune();
-    logger.info('generateAIFortune 函数调用完成');
-
-    return () => {
-      // 清理函数，当前无需额外清理
-    };
-  }, [onAnimationComplete, userMood, animationControls]);
+    generateAll();
+  }, [onComplete, userMood, userThought, seasonFeel, animationControls]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* 粒子系统 */}
       <div className="absolute inset-0 pointer-events-none">
         {Array.from({ length: 20 }).map((_, i) => (
           <motion.div
@@ -229,20 +183,16 @@ export function ShakeAnimation({ onAnimationComplete, userMood }: ShakeAnimation
             exit={{ opacity: 0, scale: 1.2 }}
             transition={{ duration: 0.5 }}
           >
-            {/* 签筒容器 */}
             <motion.div
               className="relative"
               animate={animationControls}
             >
-              {/* 签筒 */}
               <div className="w-32 h-48 bg-gradient-to-b from-gray-800 to-gray-900 rounded-lg border-2 border-primary/40 relative overflow-hidden shadow-2xl">
-                {/* 竹纹效果 */}
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/10 to-transparent"></div>
                 <div className="absolute top-4 left-4 right-4 h-px bg-primary/20"></div>
                 <div className="absolute top-8 left-4 right-4 h-px bg-primary/15"></div>
                 <div className="absolute top-12 left-4 right-4 h-px bg-primary/10"></div>
                 
-                {/* 签条飞出动画 */}
                 <motion.div
                   className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
                   initial={{ y: 0, opacity: 0 }}
@@ -265,7 +215,6 @@ export function ShakeAnimation({ onAnimationComplete, userMood }: ShakeAnimation
               </div>
             </motion.div>
             
-            {/* 状态文案 */}
             <motion.div
               className="mt-12"
               initial={{ opacity: 0 }}
@@ -278,7 +227,7 @@ export function ShakeAnimation({ onAnimationComplete, userMood }: ShakeAnimation
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 1 }}
               >
-                {isGenerating ? "签文生成中..." : "摇签中..."}
+                {statusText}
               </motion.p>
               <motion.p
                 className="text-sm text-muted-foreground"
@@ -286,7 +235,7 @@ export function ShakeAnimation({ onAnimationComplete, userMood }: ShakeAnimation
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 1.5 }}
               >
-                {isGenerating ? "天机正在降临..." : "签已出..."}
+                {statusSubtext}
               </motion.p>
               <motion.p
                 className="text-xs text-muted-foreground mt-1"
@@ -294,14 +243,12 @@ export function ShakeAnimation({ onAnimationComplete, userMood }: ShakeAnimation
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 2 }}
               >
-                {isGenerating ? "请稍候..." : "解读天意..."}
+                请稍候...
               </motion.p>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
-
-
     </div>
   );
 }
