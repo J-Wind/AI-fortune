@@ -27,13 +27,27 @@ app.post('/api/fortune/generate-text', async (req, res) => {
       });
     }
     
-    const systemPrompt = '你是一位精通易经与东方古典文化的隐世占卜师。';
-    const userPrompt = `请根据以下用户心境：${userMood}，生成一段神秘东方风格的签文，要求：
-1. 签号：用天干地支格式给出，如"甲子"。
-2. 主签文：四句七言古诗，蕴含哲理。
-3. 文化引用：引用一句易经卦辞或诗经原文，并给出白话解释。
-4. 卦象：给出对应的易经卦名、卦象符号（如☰☰）及其含义。
-整体语言保持古雅神秘，不超过200字。`;
+    const systemPrompt = '你是一位精通易经与东方古典文化的隐世占卜师。请严格按照格式输出完整的签文，不要遗漏任何部分。';
+    const userPrompt = `请根据以下用户心境：${userMood}，生成一段神秘东方风格的完整签文。
+
+必须包含以下4个部分，每部分都要有实质内容：
+
+【签号】用天干地支+生肖格式，如"乙巳签"
+
+【主签文】必须是完整的四句七言古诗（28个字），每句7字，押韵，如：
+云开月出照庭阶，静待东风次第来。
+莫叹眼前花未发，春深自有燕衔泥。
+
+【易经引】引用《易经》原文卦辞，并给出白话解读，如：
+《易经·乾卦》："初九，潜龙勿用。"白话解：龙潜伏水中，时机未到不可妄动，待时而动方见真章。
+
+【卦象】给出卦名、卦象符号（☰☱☲☳☴☵☶☷）及含义，如：
+风雷益（☳☴）象征顺势而为
+
+输出要求：
+- 严格按照【签号】【主签文】【易经引】【卦象】四个标签格式
+- 每部分内容要充实完整
+- 语言古雅神秘，有文化底蕴`;
     
     const response = await axios.post(
       'https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation',
@@ -77,8 +91,8 @@ app.post('/api/fortune/generate-text', async (req, res) => {
                          content.match(/主签文[:：]\s*([^\n【]+)/) ||
                          content.match(/([^。]+。[^。]+。[^。]+。[^。]+。)/);
     
-    const referenceMatch = content.match(/【文化引用】\s*([^【]+)/) || 
-                          content.match(/文化引用[:：]\s*([^\n【]+)/) ||
+    const referenceMatch = content.match(/【易经引】\s*([^【]+)/) || 
+                          content.match(/【文化引用】\s*([^【]+)/) ||
                           content.match(/(《[^》]+》[^\n]+)/);
     
     const hexagramMatch = content.match(/【卦象】\s*([^\n【]+)/) || 
@@ -116,17 +130,38 @@ app.post('/api/fortune/generate-interpretation', async (req, res) => {
     }
     
     const systemPrompt = '你是一位经验丰富的老先生，说话实在、接地气，擅长用大白话给老百姓解签。不要用任何markdown格式符号（如*、#、-等），就用纯文字，像跟朋友聊天一样说。';
-    const userPrompt = `请根据以下签文内容，用大白话给我解读一下：
+    const userPrompt = `请根据以下签文内容，用大白话给我深度解读：
 
 ${fortuneText}
 
-要求：
-1. 时节呼应：说说现在的天气季节跟这个签有什么关系
-2. 卦象智慧：用简单的话解释这个卦象是什么意思
-3. 具体指引：针对这个人遇到的事情，具体该注意什么
-4. 行动建议：给出几条能马上照做的建议
+请严格按照以下四个部分详细解读，每部分都要有实质性的具体内容，不要空泛：
 
-记住：说话要像老街坊聊天一样自然，别整那些文绉绉的词，让人一看就懂，知道该怎么干。每部分写个标题就行，不用加任何特殊符号。`;
+第一部分：时节呼应
+说说现在的天气季节（初夏/盛夏/秋季等）跟这个签有什么关系，为什么这个时候抽到这个签特别有意义
+
+第二部分：卦象智慧
+用简单的大白话解释这个卦象是什么意思，它告诉我们要懂得什么道理，蕴含什么人生智慧
+
+第三部分：具体指引
+针对这个人现在遇到的困惑或事情：
+1. 核心要点：这件事最关键的是什么
+2. 需要注意什么：有哪些坑要避开
+3. 心态调整：该用什么心态面对
+
+第四部分：行动建议
+给出5条能马上照做的具体建议，每条建议都要像这样写：
+心态调整：把期待转化为准备，以潜龙姿态保持谦逊而自信的心态，相信自己的积累终会在适当时机展现
+面试策略：如云开月出般从容自然，给面试官留下良好第一印象
+问答环节：如静待东风般不急不躁，听清问题再作答
+面对难题：如莫叹花未发般坦然承认不足，同时展示学习能力和成长潜力
+后续行动：无论面试结果如何，都视为一次宝贵的经验积累
+
+记住：
+1. 说话要像老街坊聊天一样自然实在
+2. 每个建议都要具体可执行，不要空话套话
+3. 结合签文的具体意象来解读
+4. 让人看完就知道该怎么干
+5. 不要用任何特殊符号`;
     
     const response = await axios.post(
       'https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation',
@@ -233,8 +268,41 @@ app.post('/api/fortune/generate-image', async (req, res) => {
       });
     }
     
-    // 根据签文内容生成图片提示词
-    const imagePrompt = `中国传统水墨画风格，意境深远。画面内容：${fortuneText}。要求：淡雅的水墨色调，留白艺术，山水花鸟元素，古风韵味，像古代文人画家的作品，有文化底蕴，画面宁静致远`;
+    // 根据签文内容反推关键词生成图片提示词
+    let sceneKeywords = '';
+    
+    // 根据签文内容提取场景关键词
+    if (fortuneText.includes('云') || fortuneText.includes('天')) {
+      sceneKeywords += '云雾缭绕的天空、';
+    }
+    if (fortuneText.includes('月') || fortuneText.includes('夜')) {
+      sceneKeywords += '皎洁的明月、';
+    }
+    if (fortuneText.includes('风')) {
+      sceneKeywords += '飞舞的燕子或仙鹤、';
+    }
+    if (fortuneText.includes('花') || fortuneText.includes('春')) {
+      sceneKeywords += '盛开的梅花或桃花、';
+    }
+    if (fortuneText.includes('水') || fortuneText.includes('龙') || fortuneText.includes('潜')) {
+      sceneKeywords += '静谧的湖面或溪流、';
+    }
+    if (fortuneText.includes('山') || fortuneText.includes('峰')) {
+      sceneKeywords += '远山如黛、';
+    }
+    if (fortuneText.includes('庭') || fortuneText.includes('阶')) {
+      sceneKeywords += '古朴的石阶或庭院、';
+    }
+    
+    // 默认元素
+    const defaultElements = '枝头绿叶、飘落的花瓣';
+    
+    const imagePrompt = `中国传统水墨画风格，意境深远，古风韵味。
+画面主体：${sceneKeywords}${defaultElements}
+艺术风格：淡雅水墨色调，大量留白，像宋代文人画家的作品
+氛围：宁静致远，神秘东方美学，有文化底蕴
+构图：画面要有层次感，近景中景远景分明
+色彩：以黑白灰为主，点缀淡淡的青绿色或赭石色`;
     
     const response = await axios.post(
       'https://dashscope.aliyuncs.com/api/v1/services/aigc/text2image/image-synthesis',
