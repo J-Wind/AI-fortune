@@ -4,26 +4,20 @@ import { Logger } from '@nestjs/common';
 const logger = new Logger('ai_image_generate_mysterious_oriental');
 
 interface InputParams {
-  /** 签文内容 */
   fortune_text: string;
-  /** 图片比例，可选值：16:9、3:2、4:3、1:1、2:3、9:16，默认1:1 */
   image_ratio?: string;
 }
 
 interface Output {
-  /** 图片URL列表 */
   images: string[];
 }
 
 interface FailureOutput {
   response: {
     status: {
-      /** 协议层返回码（如 HTTP 状态码） */
       protocolStatusCode: string;
-      /** 业务应用状态码 */
       appStatusCode: string;
     };
-    /** 返回体（JSON 字符串形式） */
     body: string;
   };
 }
@@ -31,74 +25,175 @@ interface FailureOutput {
 interface Response {
   code: number;
   data?: {
-    output?: Output; // 执行成功时的输出结果
-    outcome?: string; // 执行结果，success或error
-    failureOutput?: FailureOutput; // 执行失败时的输出结果
+    output?: Output;
+    outcome?: string;
+    failureOutput?: FailureOutput;
   };
-  message?: string; // 发生系统错误时的错误信息
+  message?: string;
 }
 
-// Capability AI生成神秘东方风格图片, 功能是: 根据签文内容生成配套的神秘东方风格图片，支持多种图片比例
-// 当Capability被成功执行时，Response.data.output的结构如下（JSON Schema格式）：
-/**
- * {"type":"object","properties":{"images":{"description":"图片URL列表","type":"array","items":{"type":"string","description":"图片URL"}}}}
- */
+interface WanxImageResponse {
+  output: {
+    task_id: string;
+    task_status: string;
+    results?: Array<{
+      url: string;
+    }>;
+  };
+  usage: {
+    image_count: number;
+  };
+  request_id: string;
+}
+
+interface WanxTaskResponse {
+  output: {
+    task_id: string;
+    task_status: string;
+    results?: Array<{
+      url: string;
+    }>;
+  };
+  request_id: string;
+}
+
+const ratioMap: Record<string, string> = {
+  '16:9': '16:9',
+  '3:2': '3:2',
+  '4:3': '4:3',
+  '1:1': '1:1',
+  '2:3': '2:3',
+  '9:16': '9:16',
+};
+
 export const callCapabilities = async (input: InputParams): Promise<Response> => {
   try {
-    // 从环境变量中获取接口鉴权Token
-    const token = process.env['INTEGRATION_TOKEN'] || '';
-    const envKey = '';
-    const actionInput =     {
-          "prompt": "{{input.fortune_text}}, 神秘东方风格，古风，唯美，意境深远，水墨画风格，柔和色调，高清，禁止在图片里增加文字",
-          "image_ratio": "{{input.image_ratio}}",
-          "watermark": false
-    };
+    const apiKey = process.env['AI_API_KEY'] || '';
+    
+    if (!apiKey) {
+      logger.error('千问 API 密钥未配置');
+      return {
+        code: 1,
+        message: '千问 API 密钥未配置',
+      };
+    }
+    
+    const imageRatio = ratioMap[input.image_ratio || '1:1'] || '1:1';
+    
+    const prompt = `${input.fortune_text}, 神秘东方风格，古风，唯美，意境深远，水墨画风格，柔和色调，高清`;
+    
     const requestData = {
-      capability: {
-        sourceActionID: 'official_ai/image_generate',
-        actionInput: JSON.stringify(actionInput),
+      model: "wanx2.1-t2i-turbo",
+      input: {
+        prompt: prompt,
       },
-      input: JSON.stringify(input),
+      parameters: {
+        size: imageRatio === '1:1' ? '1024*1024' : 
+              imageRatio === '16:9' ? '1280*720' :
+              imageRatio === '9:16' ? '720*1280' :
+              imageRatio === '4:3' ? '1024*768' :
+              imageRatio === '3:2' ? '1216*832' :
+              imageRatio === '2:3' ? '832*1216' : '1024*1024',
+        n: 1,
+      }
     };
 
-    logger.log('接口请求数据: ' + JSON.stringify(requestData));
-    logger.log('请求URL: https://miaoda.feishu.cn/play/api/feida/v1/integration/capabilities/call');
+    logger.log('千问图片生成请求数据: ' + JSON.stringify(requestData));
     
     const header = {
-      Authorization: `Bearer ${token}`,
-      'X-API-Key': `${token}`,
+      'Authorization': `Bearer ${apiKey}`,
       'Content-Type': 'application/json',
-    }
-    if (envKey.length > 0) {
-      header['x-tt-env'] = envKey;
-    }
-    const response = await axios.post(
-      'https://miaoda.feishu.cn/play/api/feida/v1/integration/capabilities/call',
+      'X-DashScope-Async': 'enable',
+    };
+    
+    const submitResponse = await axios.post<WanxImageResponse>(
+      'https://dashscope.aliyuncs.com/api/v1/services/aigc/text2image/image-synthesis',
       requestData,
       {
         headers: header,
+        timeout: 30000,
       },
     );
     
-    logger.log(`接口响应状态: ${response.status}`);
-    logger.log('接口响应数据: ' + JSON.stringify(response.data));
-    logger.log('接口响应头: ' + JSON.stringify(response.headers));
-
-    return response.data as Response;
+    logger.log(`图片生成提交响应状态: ${submitResponse.status}`);
+    logger.log('图片生成提交响应数据: ' + JSON.stringify(submitResponse.data));
+    
+    const taskId = submitResponse.data.output.task_id;
+    
+    if (!taskId) {
+      return {
+        code: 1,
+        message: '图片生成任务提交失败',
+      };
+    }
+    
+    const taskHeader = {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    };
+    
+    let taskStatus = submitResponse.data.output.task_status;
+    let maxRetries = 30;
+    let retryCount = 0;
+    
+    while (taskStatus === 'PENDING' || taskStatus === 'RUNNING') {
+      if (retryCount >= maxRetries) {
+        return {
+          code: 1,
+          message: '图片生成超时',
+        };
+      }
+      
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      retryCount++;
+      
+      const taskResponse = await axios.get<WanxTaskResponse>(
+        `https://dashscope.aliyuncs.com/api/v1/tasks/${taskId}`,
+        {
+          headers: taskHeader,
+          timeout: 15000,
+        },
+      );
+      
+      taskStatus = taskResponse.data.output.task_status;
+      logger.log(`图片生成任务状态: ${taskStatus}, 重试次数: ${retryCount}`);
+      
+      if (taskStatus === 'SUCCEEDED') {
+        const results = taskResponse.data.output.results;
+        if (results && results.length > 0) {
+          const images = results.map(r => r.url);
+          logger.log('图片生成成功: ' + JSON.stringify(images));
+          return {
+            code: 0,
+            data: {
+              output: { images },
+              outcome: 'success'
+            }
+          };
+        }
+      } else if (taskStatus === 'FAILED') {
+        return {
+          code: 1,
+          message: '图片生成任务失败',
+        };
+      }
+    }
+    
+    return {
+      code: 1,
+      message: '图片生成任务异常结束',
+    };
   } catch (error: unknown) {
     if (axios.isAxiosError(error)) {
-      // Axios错误 - 网络请求相关
       logger.error(`Axios错误类型: ${error.code || 'UNKNOWN'}`);
       logger.error(`错误消息: ${error.message}`);
 
       if (error.response) {
-        // 服务器响应了，但状态码不是2xx
         logger.error(`HTTP状态码: ${error.response.status}`);
         logger.error(`HTTP状态文本: ${error.response.statusText}`);
         logger.error(`响应数据: ${JSON.stringify(error.response.data)}`);
         logger.error(`响应头: ${JSON.stringify(error.response.headers)}`);
       } else if (error.request) {
-        // 请求已发送但无响应
         logger.error('请求已发送但未收到响应');
         logger.error(
           `请求配置: ${JSON.stringify({
@@ -111,12 +206,10 @@ export const callCapabilities = async (input: InputParams): Promise<Response> =>
           })}`,
         );
       } else {
-        // 请求配置错误
         logger.error('请求配置错误');
         logger.error(`错误消息: ${error.message}`);
       }
 
-      // 检查网络相关错误
       if (error.code === 'ECONNREFUSED') {
         logger.error('连接被拒绝，请检查目标服务是否运行');
       } else if (error.code === 'ETIMEDOUT') {
@@ -130,12 +223,10 @@ export const callCapabilities = async (input: InputParams): Promise<Response> =>
         logger.error('SSL证书验证失败，请检查证书配置');
       }
     } else if (error instanceof Error) {
-      // 通用错误
       logger.error(`错误名称: ${error.name}`);
       logger.error(`错误消息: ${error.message}`);
       logger.error(`错误堆栈: ${error.stack}`);
     } else {
-      // 未知错误类型
       logger.error(`未知错误类型: ${typeof error}`);
       logger.error(`错误内容: ${String(error)}`);
     }

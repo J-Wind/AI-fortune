@@ -2,9 +2,7 @@ import { useCallback } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { ErrorBoundary } from 'react-error-boundary';
 
-import { AppContainer } from '@lark-apaas/client-toolkit/components/AppContainer';
 import { ErrorRender } from '@lark-apaas/client-toolkit/components/ErrorRender';
-// This is a temporary placeholder component from spark-framework
 import './index.css';
 import Layout from './components/Layout';
 import NotFound from './pages/NotFound';
@@ -40,14 +38,12 @@ const MainApp = () => {
   }, []);
   return (
     <BrowserRouter basename={CLIENT_BASE_PATH}>
-      <AppContainer defaultTheme="light">
-        <ErrorBoundary
-          fallbackRender={({ error }) => <ErrorRender error={error} />}
-          onError={handleError}
-        >
-          <RoutesComponent />
-        </ErrorBoundary>
-      </AppContainer>
+      <ErrorBoundary
+        fallbackRender={({ error }) => <ErrorRender error={error} />}
+        onError={handleError}
+      >
+        <RoutesComponent />
+      </ErrorBoundary>
     </BrowserRouter>
   );
 };
