@@ -226,7 +226,7 @@ app.post('/api/fortune/generate-image', (req, res) => {
 });
 
 // 静态文件服务
-app.get('*', (req, res) => {
+app.get('(.*)', (req, res) => {
   res.sendFile(path.join(__dirname, 'dist/client', 'index.html'));
 });
 
