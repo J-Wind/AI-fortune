@@ -20,7 +20,7 @@ export class FortuneController {
     @Req() req: Request,
     @Body() body: GenerateImageRequestDto
   ): Promise<GenerateImageResponseDto> {
-    const { userId } = req.userContext;
+    const userId = (req as any).userContext?.userId || 'anonymous';
     
     const result = await this.fortuneService.generateFortuneImage(
       body.fortuneText,

@@ -22,7 +22,7 @@ export class FortuneInterpretationController {
     @Req() req: Request,
     @Body() body: GenerateInterpretationRequestDto
   ): Promise<GenerateInterpretationResponseDto> {
-    const { userId } = req.userContext;
+    const userId = (req as any).userContext?.userId || 'anonymous';
     
     try {
       const interpretation = await this.fortuneInterpretationService.generateInterpretation(body.fortuneText);

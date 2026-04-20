@@ -42,7 +42,7 @@ export class FortuneShareController {
     @Req() req: Request,
     @Body() shareData: ShareRequestDto
   ): Promise<ShareResponseDto> {
-    const { userId } = req.userContext;
+    const userId = (req as any).userContext?.userId || 'anonymous';
     return this.fortuneShareService.shareToFeishu(shareData, userId);
   }
 }
