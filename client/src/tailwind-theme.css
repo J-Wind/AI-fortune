@@ -167,12 +167,8 @@ body {
   backdrop-filter: blur(16px);
 }
 
-/* 响应式断点 */
+/* 响应式断点 - 保持竖排文字在所有设备上 */
 @media (max-width: 768px) {
-  .writing-mode-vertical-rl {
-    writing-mode: horizontal-tb;
-  }
-  
   .backdrop-blur-md {
     backdrop-filter: blur(8px);
   }
@@ -222,12 +218,8 @@ body {
   backdrop-filter: blur(16px);
 }
 
-/* 响应式断点 */
+/* 响应式断点 - 保持竖排文字在所有设备上 */
 @media (max-width: 768px) {
-  .writing-mode-vertical-rl {
-    writing-mode: horizontal-tb;
-  }
-  
   .backdrop-blur-md {
     backdrop-filter: blur(8px);
   }
