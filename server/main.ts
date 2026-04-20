@@ -14,8 +14,15 @@ async function bootstrap() {
   const host = process.env.SERVER_HOST || '0.0.0.0';
   const port = Number(process.env.SERVER_PORT || process.env.PORT || '3000');
 
+  // 注册静态文件服务
+  const isProd = process.env.NODE_ENV === 'production';
+  const staticAssetsDir = isProd
+    ? join(process.cwd(), 'client')  // prod: cwd is dist/, assets in dist/client/
+    : join(process.cwd(), 'dist/client');  // dev: cwd is project root
+  app.useStaticAssets(staticAssetsDir);
+
   // 注册视图引擎, 渲染 client 目录下的 html 文件
-  app.setBaseViewsDir(join(process.cwd(), 'dist/client'));
+  app.setBaseViewsDir(staticAssetsDir);
   app.setViewEngine('html');
   app.engine('html', hbsExpressEngine);
 
