@@ -153,15 +153,15 @@ export default function ResultPage() {
         <div className="absolute bottom-1/3 right-1/4 w-48 h-48 bg-primary rounded-full blur-2xl animate-pulse delay-1000"></div>
       </div>
 
-      <div className="relative z-10 max-w-md mx-auto h-screen flex flex-col justify-between py-6">
+      <div className="relative z-10 max-w-md mx-auto h-screen flex flex-col justify-between py-4">
         {/* 上半部分：标题 + 签文卡片 */}
-        <div className="flex-1 flex flex-col justify-center space-y-3">
+        <div className="flex-1 flex flex-col justify-center space-y-2">
           {/* 页面标题 */}
-          <div className="text-center">
-            <h1 className="text-2xl font-bold text-primary font-serif mb-2">
+          <div className="text-center mb-1">
+            <h1 className="text-xl font-bold text-primary font-serif mb-1">
               您的运势签文
             </h1>
-            <p className="text-sm text-muted-foreground font-serif">
+            <p className="text-xs text-muted-foreground font-serif">
               天机已现，缘起缘落
             </p>
           </div>
@@ -171,10 +171,10 @@ export default function ResultPage() {
         </div>
 
         {/* 下半部分：操作按钮 - 固定在底部 */}
-        <div className="pt-4 pb-2">
+        <div className="pt-3 pb-2">
           <Button
             onClick={handleInterpret}
-            className="w-full h-12 bg-transparent border-2 border-primary text-primary font-serif text-base hover:bg-primary/10 transition-all duration-300 hover:scale-105"
+            className="w-full h-11 bg-transparent border-2 border-primary text-primary font-serif text-sm hover:bg-primary/10 transition-all duration-300 hover:scale-105"
             size="lg"
             variant="outline"
           >
