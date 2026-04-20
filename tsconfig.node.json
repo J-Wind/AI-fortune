@@ -1,0 +1,15 @@
+{
+  "extends": "@lark-apaas/fullstack-presets/lib/tsconfig/tsconfig.node.json",
+  "compilerOptions": {
+    "baseUrl": "./",
+    "outDir": "./dist",
+    "paths": {
+      "@server/*": ["server/*"]
+    },
+  },
+  "watchOptions": {
+    "excludeDirectories": ["node_modules/**"]
+  },
+  "include": ["server/**/*", "scripts/**/*.ts"],
+  "exclude": ["node_modules", "dist", "client", "**/*.spec.ts", "**/*.e2e-spec.ts"],
+}

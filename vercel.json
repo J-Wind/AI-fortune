@@ -1,0 +1,29 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "client/**",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist/client"
+      }
+    },
+    {
+      "src": "server/**/*.ts",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/server/main.ts"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/client/index.html"
+    }
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  }
+}

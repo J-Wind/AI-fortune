@@ -1,0 +1,393 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/fortune/generate-image": {
+      "post": {
+        "operationId": "FortuneController_generateImage",
+        "summary": "生成签文配套图片",
+        "description": "根据签文内容生成神秘东方风格的配套图片",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenerateImageRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenerateImageResponseDto"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenerateImageResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Fortune"
+        ]
+      }
+    },
+    "/api/fortune/generate-text": {
+      "post": {
+        "operationId": "FortuneTextController_generateFortuneText",
+        "summary": "生成AI签文",
+        "description": "根据用户心境生成神秘东方风格的AI签文",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenerateFortuneRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenerateFortuneResponseDto"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenerateFortuneResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Fortune Text"
+        ]
+      }
+    },
+    "/api/fortune/generate-interpretation": {
+      "post": {
+        "operationId": "FortuneInterpretationController_generateInterpretation",
+        "summary": "生成AI深度解签",
+        "description": "根据签文内容生成时节呼应、卦象智慧、具体指引、行动建议等完整解签文本",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenerateInterpretationRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenerateInterpretationResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Fortune Interpretation"
+        ]
+      }
+    },
+    "/api/fortune/share": {
+      "post": {
+        "operationId": "FortuneShareController_shareFortune",
+        "summary": "分享解签结果到飞书",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ShareRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "分享成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShareResponseDto"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShareResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误"
+          },
+          "500": {
+            "description": "服务器错误"
+          }
+        },
+        "tags": [
+          "fortune"
+        ]
+      }
+    },
+    "/api/download/app": {
+      "get": {
+        "operationId": "DownloadController_downloadApp",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Returns the complete AI Fortune app source code as a zip file",
+            "content": {
+              "application/zip": {}
+            }
+          }
+        },
+        "tags": [
+          "download"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "NestJS Fullstack API",
+    "description": "",
+    "version": "1.0.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "schemas": {
+      "GenerateImageResponseDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "生成是否成功"
+          },
+          "imageUrl": {
+            "type": "string",
+            "description": "生成的图片URL"
+          },
+          "message": {
+            "type": "string",
+            "description": "提示信息"
+          }
+        },
+        "required": [
+          "success"
+        ]
+      },
+      "GenerateImageRequestDto": {
+        "type": "object",
+        "properties": {
+          "fortuneText": {
+            "type": "string",
+            "description": "签文内容"
+          },
+          "imageRatio": {
+            "type": "string",
+            "default": "1:1",
+            "description": "图片比例",
+            "enum": [
+              "16:9",
+              "3:2",
+              "4:3",
+              "1:1",
+              "2:3",
+              "9:16"
+            ]
+          }
+        },
+        "required": [
+          "fortuneText"
+        ]
+      },
+      "GenerateFortuneRequestDto": {
+        "type": "object",
+        "properties": {
+          "userMood": {
+            "type": "string",
+            "description": "用户当前心境或想法"
+          }
+        },
+        "required": [
+          "userMood"
+        ]
+      },
+      "GenerateFortuneResponseDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "生成是否成功"
+          },
+          "number": {
+            "type": "string",
+            "description": "签号"
+          },
+          "mainText": {
+            "type": "string",
+            "description": "主签文"
+          },
+          "culturalReference": {
+            "type": "string",
+            "description": "文化引用"
+          },
+          "hexagram": {
+            "type": "string",
+            "description": "卦象"
+          },
+          "rawResponse": {
+            "type": "string",
+            "description": "原始AI响应"
+          },
+          "message": {
+            "type": "string",
+            "description": "提示信息"
+          }
+        },
+        "required": [
+          "success"
+        ]
+      },
+      "GenerateInterpretationResponseDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "生成是否成功",
+            "example": true
+          },
+          "seasonEcho": {
+            "type": "string",
+            "description": "时节呼应",
+            "example": "当前时节与签文相呼应，反映了您内心的季节感受和情感波动。"
+          },
+          "hexagramWisdom": {
+            "type": "string",
+            "description": "卦象智慧",
+            "example": "易经卦象蕴含着深刻的智慧，指导您在当前情境下的思考方向。"
+          },
+          "specificGuide": {
+            "type": "string",
+            "description": "具体指引",
+            "example": "针对您当前的具体情况，建议您在以下方面多加关注和调整。"
+          },
+          "actionAdvice": {
+            "type": "string",
+            "description": "行动建议",
+            "example": "建议您在近期重点关注事业发展，主动寻求合作机会，保持积极进取的心态。"
+          },
+          "message": {
+            "type": "string",
+            "description": "提示信息",
+            "example": "解读生成成功"
+          }
+        },
+        "required": [
+          "success"
+        ]
+      },
+      "GenerateInterpretationRequestDto": {
+        "type": "object",
+        "properties": {
+          "fortuneText": {
+            "type": "string",
+            "description": "签文内容",
+            "example": "甲子签：春风得意马蹄疾，一日看尽长安花。此签出自《易经》乾卦，象征刚健进取。"
+          }
+        },
+        "required": [
+          "fortuneText"
+        ]
+      },
+      "ShareRequestDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "签文标题"
+          },
+          "content": {
+            "type": "string",
+            "description": "签文内容"
+          },
+          "summary": {
+            "type": "string",
+            "description": "深度解读摘要"
+          },
+          "imageUrl": {
+            "type": "string",
+            "description": "AI图片链接"
+          }
+        },
+        "required": [
+          "title",
+          "content",
+          "summary",
+          "imageUrl"
+        ]
+      },
+      "ShareResponseDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "操作是否成功"
+          },
+          "message": {
+            "type": "string",
+            "description": "操作结果消息"
+          },
+          "data": {
+            "type": "object",
+            "description": "额外数据"
+          }
+        },
+        "required": [
+          "success",
+          "message"
+        ]
+      }
+    }
+  }
+}

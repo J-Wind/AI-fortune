@@ -1,0 +1,217 @@
+[
+  {
+    "id": "ai_image_generate_mysterious_oriental",
+    "sourceActionID": "official_ai/image_generate",
+    "name": "AI生成神秘东方风格图片",
+    "desc": "根据签文内容生成配套的神秘东方风格图片，支持多种图片比例",
+    "actionInput": {
+      "watermark": true,
+      "prompt": "{{input.fortune_text}}, 神秘东方风格，古风，唯美，意境深远，水墨画风格，柔和色调，高清",
+      "image_ratio": "{{input.image_ratio}}"
+    },
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "fortune_text": {
+          "type": "string",
+          "description": "签文内容"
+        },
+        "image_ratio": {
+          "type": "string",
+          "description": "图片比例，可选值：16:9、3:2、4:3、1:1、2:3、9:16，默认1:1",
+          "enum": [
+            "16:9",
+            "3:2",
+            "4:3",
+            "1:1",
+            "2:3",
+            "9:16"
+          ]
+        }
+      },
+      "required": [
+        "fortune_text"
+      ]
+    },
+    "actionOutputSchema": {
+      "type": "object",
+      "properties": {
+        "images": {
+          "items": {
+            "description": "图片URL",
+            "type": "string"
+          },
+          "type": "array",
+          "description": "图片URL列表"
+        }
+      }
+    },
+    "createdAt": 1763109103648,
+    "updatedAt": 1763109103648,
+    "outputMode": null
+  },
+  {
+    "id": "ai_text_generate_oracle",
+    "sourceActionID": "official_ai/text_generate",
+    "name": "AI神秘东方签文生成",
+    "desc": "根据用户输入的心境、想法生成神秘东方风格签文，含签号、主签文、文化引用与卦象",
+    "actionInput": {
+      "model_id": "87",
+      "temperature": "0.5",
+      "max_tokens": "1024",
+      "prompt": "你是一位精通易经与东方古典文化的隐世占卜师。请根据以下用户心境：{{input.mood}}，生成一段神秘东方风格的签文，要求：\n1. 签号：用天干地支格式给出，如\"甲子\"。\n2. 主签文：四句七言古诗，蕴含哲理。\n3. 文化引用：引用一句易经卦辞或诗经原文，并给出白话解释。4. 卦象：给出对应的易经卦名、卦象符号（如☰☰）及其含义。整体语言保持古雅神秘，不超过200字。"
+    },
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "mood": {
+          "type": "string",
+          "description": "用户当前心境或想法"
+        }
+      },
+      "required": [
+        "mood"
+      ]
+    },
+    "actionOutputSchema": {
+      "type": "object",
+      "properties": {
+        "response": {
+          "description": "正文文本",
+          "type": "string"
+        }
+      }
+    },
+    "createdAt": 1763109825922,
+    "updatedAt": 1763109825922,
+    "outputMode": null
+  },
+  {
+    "id": "ai_text_generate_fortune_interpretation",
+    "sourceActionID": "official_ai/text_generate",
+    "name": "AI深度解签",
+    "desc": "根据签文内容生成白话解读、行动建议、宜忌提示等完整解签文本",
+    "actionInput": {
+      "max_tokens": "1024",
+      "prompt": "请对以下签文进行深度解读，输出包括：\n1. 白话解读：用通俗易懂的语言解释签文含义；\n2. 行动建议：给出具体可行的行动建议；\n3. 宜忌提示：列出适宜与忌讳的事项。\n\n签文内容：{{input.fortune_text}}",
+      "model_id": "87",
+      "temperature": "0.5"
+    },
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "fortune_text": {
+          "type": "string",
+          "description": "签文内容"
+        }
+      },
+      "required": [
+        "fortune_text"
+      ]
+    },
+    "actionOutputSchema": {
+      "properties": {
+        "response": {
+          "type": "string",
+          "description": "正文文本"
+        }
+      },
+      "type": "object"
+    },
+    "createdAt": 1763198220422,
+    "updatedAt": 1763198220422,
+    "outputMode": null
+  },
+  {
+    "id": "feishu_send_fortune_result",
+    "sourceActionID": "official_feishu/send_message",
+    "name": "发送解签结果飞书消息",
+    "desc": "将签文标题、签文内容、深度解读摘要和AI图片链接发送给当前用户本人",
+    "actionInput": {
+      "receiver_user_list": [
+        "{{input.user_id}}"
+      ],
+      "receiver_group_list": [],
+      "card_content": {
+        "config": {
+          "update_multi": true
+        },
+        "body": {
+          "direction": "vertical",
+          "elements": [
+            {
+              "tag": "markdown",
+              "content": "**{{input.title}}**\n\n{{input.content}}",
+              "text_size": "normal",
+              "margin": "0px 0px 0px 0px",
+              "element_id": "custom_id"
+            },
+            {
+              "element_id": "bottom_hr",
+              "tag": "hr",
+              "margin": "0px 0px 0px 0px"
+            },
+            {
+              "margin": "0px 0px 0px 0px",
+              "element_id": "bottom_tip",
+              "tag": "markdown",
+              "content": "来自飞书妙搭解签小助手",
+              "text_align": "left",
+              "text_size": "normal_v2"
+            }
+          ]
+        },
+        "header": {
+          "padding": "12px 8px 12px 8px",
+          "title": {
+            "tag": "plain_text",
+            "content": "你的天机已送到"
+          },
+          "subtitle": {
+            "tag": "plain_text",
+            "content": ""
+          },
+          "template": "blue"
+        },
+        "schema": "2.0"
+      },
+      "creator_id": "test_user_id"
+    },
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "签文标题"
+        },
+        "content": {
+          "type": "string",
+          "description": "签文内容"
+        },
+        "summary": {
+          "type": "string",
+          "description": "深度解读摘要"
+        },
+        "image_url": {
+          "type": "string",
+          "description": "AI图片链接"
+        },
+        "user_id": {
+          "type": "string",
+          "description": "当前用户ID"
+        }
+      },
+      "required": [
+        "title",
+        "content",
+        "summary",
+        "image_url",
+        "user_id"
+      ]
+    },
+    "actionOutputSchema": {},
+    "createdAt": 0,
+    "updatedAt": 1763736471633,
+    "outputMode": null
+  }
+]

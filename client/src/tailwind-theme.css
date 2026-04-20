@@ -1,0 +1,258 @@
+:root {
+  /* 墨韵渐变色系 - 主色调 */
+  --background: rgb(26, 26, 26);
+  --foreground: rgb(245, 243, 237);
+  --card: rgb(45, 45, 45);
+  --card-foreground: rgb(245, 243, 237);
+  --popover: rgb(45, 45, 45);
+  --popover-foreground: rgb(245, 243, 237);
+  
+  /* 金箔点睛色系 - 强调色 */
+  --primary: rgb(212, 175, 55);
+  --primary-foreground: rgb(26, 26, 26);
+  --secondary: rgb(184, 148, 42);
+  --secondary-foreground: rgb(245, 243, 237);
+  
+  /* 纸墨晕染色系 - 辅助色 */
+  --muted: rgb(74, 74, 74);
+  --muted-foreground: rgb(168, 168, 168);
+  --accent: rgb(74, 95, 127);
+  --accent-foreground: rgb(245, 243, 237);
+  
+  /* 警示色系 */
+  --destructive: rgb(200, 72, 63);
+  --destructive-foreground: rgb(245, 243, 237);
+  
+  /* 边框与输入 */
+  --border: rgb(74, 74, 74);
+  --input: rgb(74, 74, 74);
+  --ring: rgb(212, 175, 55);
+  /* 图表色系 */
+  --chart-1: rgb(212, 175, 55);
+  --chart-2: rgb(184, 148, 42);
+  --chart-3: rgb(232, 217, 168);
+  --chart-4: rgb(74, 95, 127);
+  --chart-5: rgb(200, 72, 63);
+  /* 侧边栏色系 */
+  --sidebar: rgb(45, 45, 45);
+  --sidebar-foreground: rgb(245, 243, 237);
+  --sidebar-primary: rgb(212, 175, 55);
+  --sidebar-primary-foreground: rgb(26, 26, 26);
+  --sidebar-accent: rgb(74, 74, 74);
+  --sidebar-accent-foreground: rgb(245, 243, 237);
+  --sidebar-border: rgb(74, 74, 74);
+  --sidebar-ring: rgb(232, 217, 168);
+  /* 字体系统 - 神秘东方风格 */
+  --font-sans:
+    'Noto Serif SC', 'STSong', '宋体', 'serif',
+    'LarkHackSafariFont', 'LarkEmojiFont', 'LarkChineseQuote', '-apple-system',
+    'BlinkMacSystemFont', 'Helvetica Neue', 'Tahoma', 'PingFang SC',
+    'Microsoft Yahei', 'Arial', 'Hiragino Sans GB', 'sans-serif',
+    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  --font-serif: 'STKaiti', '楷体', 'KaiTi', cursive;
+  --font-mono: 'STFangsong', '仿宋', 'FangSong', monospace;
+  --radius: 0.5rem;
+  /* 阴影系统 - 神秘东方风格 */
+  --shadow-x: 0px;
+  --shadow-y: 8px;
+  --shadow-blur: 16px;
+  --shadow-spread: 0px;
+  --shadow-opacity: 0.15;
+  --shadow-color: #000000;
+  --shadow-2xs: 0px 2px 4px 0px hsl(0 0% 0% / 0.1);
+  --shadow-xs: 0px 4px 8px 0px hsl(0 0% 0% / 0.12);
+  --shadow-sm:
+    0px 8px 16px 0px hsl(0 0% 0% / 0.15), 0px 2px 4px -1px hsl(0 0% 0% / 0.1);
+  --shadow:
+    0px 12px 24px 0px hsl(0 0% 0% / 0.2), 0px 2px 4px -1px hsl(0 0% 0% / 0.1);
+  --shadow-md:
+    0px 16px 32px 0px hsl(0 0% 0% / 0.25), 0px 4px 8px -1px hsl(0 0% 0% / 0.15);
+  --shadow-lg:
+    0px 24px 48px 0px hsl(0 0% 0% / 0.3), 0px 8px 16px -1px hsl(0 0% 0% / 0.2);
+  --shadow-xl:
+    0px 32px 64px 0px hsl(0 0% 0% / 0.35), 0px 12px 24px -1px hsl(0 0% 0% / 0.25);
+  --shadow-2xl: 0px 48px 96px 0px hsl(0 0% 0% / 0.4);
+  
+  /* 金色光晕效果 */
+  --shadow-gold: 0px 0px 40px rgba(212, 175, 55, 0.4);
+  --shadow-gold-glow: 0px 0px 60px rgba(212, 175, 55, 0.6);
+  --tracking-normal: -0.025em;
+  --spacing: 0.25rem;
+  
+  /* 纸质纹理颜色 */
+  --paper: rgb(245, 243, 237);
+  --paper-foreground: rgb(45, 45, 45);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+  --font-serif: var(--font-serif);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --shadow-2xs: var(--shadow-2xs);
+  --shadow-xs: var(--shadow-xs);
+  --shadow-sm: var(--shadow-sm);
+  --shadow: var(--shadow);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-xl: var(--shadow-xl);
+  --shadow-2xl: var(--shadow-2xl);
+
+  --tracking-tighter: calc(var(--tracking-normal) - 0.05em);
+  --tracking-tight: calc(var(--tracking-normal) - 0.025em);
+  --tracking-normal: var(--tracking-normal);
+  --tracking-wide: calc(var(--tracking-normal) + 0.025em);
+  --tracking-wider: calc(var(--tracking-normal) + 0.05em);
+  --tracking-widest: calc(var(--tracking-normal) + 0.1em);
+}
+
+body {
+  letter-spacing: var(--tracking-normal);
+}
+
+/* 纸质纹理效果 */
+.bg-paper-texture {
+  background-image: 
+    radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.1) 2px, transparent 2px),
+    radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 50px 50px, 30px 30px;
+  background-position: 0 0, 25px 25px;
+}
+
+/* 竖排文字样式 */
+.writing-mode-vertical-rl {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+}
+
+/* 毛玻璃效果增强 */
+.backdrop-blur-md {
+  backdrop-filter: blur(16px);
+}
+
+/* 响应式断点 */
+@media (max-width: 768px) {
+  .writing-mode-vertical-rl {
+    writing-mode: horizontal-tb;
+  }
+  
+  .backdrop-blur-md {
+    backdrop-filter: blur(8px);
+  }
+}
+
+/* 动画效果 */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+/* 文字省略 */
+.line-clamp-2 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+/* 纸质纹理效果 */
+.bg-paper-texture {
+  background-image: 
+    radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.1) 2px, transparent 2px),
+    radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 50px 50px, 30px 30px;
+  background-position: 0 0, 25px 25px;
+}
+
+/* 竖排文字样式 */
+.writing-mode-vertical-rl {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+}
+
+/* 毛玻璃效果增强 */
+.backdrop-blur-md {
+  backdrop-filter: blur(16px);
+}
+
+/* 响应式断点 */
+@media (max-width: 768px) {
+  .writing-mode-vertical-rl {
+    writing-mode: horizontal-tb;
+  }
+  
+  .backdrop-blur-md {
+    backdrop-filter: blur(8px);
+  }
+}
+
+/* 动画效果 */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+/* 文字省略 */
+.line-clamp-2 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}

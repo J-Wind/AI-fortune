@@ -1,0 +1,19 @@
+import { Controller, Get, Render, Req } from '@nestjs/common';
+import { ApiExcludeController } from '@nestjs/swagger';
+import type { Request } from 'express';
+
+@ApiExcludeController()
+@Controller()
+export class ViewController {
+
+  @Get(['/', '*'])
+  @Render('index')
+  async render(@Req() req: Request) {
+    // you can add custom render params here
+    const platformData = req.__platform_data__ ?? {};
+    return {
+      // don't delete this line, it's used by client to get platform info
+      __platform__: JSON.stringify(platformData),
+    };
+  }
+}

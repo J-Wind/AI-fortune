@@ -1,0 +1,19 @@
+{
+  "extends": "@lark-apaas/fullstack-presets/lib/tsconfig/tsconfig.app.json",
+  "compilerOptions": {
+    "baseUrl": "./",
+    "paths": {
+      "@client/*": ["client/*"],
+      "@/*": ["./client/src/*"]
+    },
+  },
+  "include": [
+    "client/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "public",
+    "client/src/api/gen"
+  ]
+}
