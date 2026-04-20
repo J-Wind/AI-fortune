@@ -103,42 +103,6 @@ export type GenerateInterpretationRequestDto = {
     fortuneText: string;
 };
 
-export type ShareRequestDto = {
-    /**
-     * 签文标题
-     */
-    title: string;
-    /**
-     * 签文内容
-     */
-    content: string;
-    /**
-     * 深度解读摘要
-     */
-    summary: string;
-    /**
-     * AI图片链接
-     */
-    imageUrl: string;
-};
-
-export type ShareResponseDto = {
-    /**
-     * 操作是否成功
-     */
-    success: boolean;
-    /**
-     * 操作结果消息
-     */
-    message: string;
-    /**
-     * 额外数据
-     */
-    data?: {
-        [key: string]: unknown;
-    };
-};
-
 export type FortuneControllerGenerateImageData = {
     body: GenerateImageRequestDto;
     path?: never;
@@ -179,34 +143,6 @@ export type FortuneInterpretationControllerGenerateInterpretationResponses = {
 };
 
 export type FortuneInterpretationControllerGenerateInterpretationResponse = FortuneInterpretationControllerGenerateInterpretationResponses[keyof FortuneInterpretationControllerGenerateInterpretationResponses];
-
-export type FortuneShareControllerShareFortuneData = {
-    body: ShareRequestDto;
-    path?: never;
-    query?: never;
-    url: '/api/fortune/share';
-};
-
-export type FortuneShareControllerShareFortuneErrors = {
-    /**
-     * 参数错误
-     */
-    400: unknown;
-    /**
-     * 服务器错误
-     */
-    500: unknown;
-};
-
-export type FortuneShareControllerShareFortuneResponses = {
-    /**
-     * 分享成功
-     */
-    200: ShareResponseDto;
-    201: ShareResponseDto;
-};
-
-export type FortuneShareControllerShareFortuneResponse = FortuneShareControllerShareFortuneResponses[keyof FortuneShareControllerShareFortuneResponses];
 
 export type DownloadControllerDownloadAppData = {
     body?: never;

@@ -136,8 +136,15 @@ export default function InterpretPage() {
       setError(errorMessage);
       logger.error('AI解读生成失败', { error });
       
-      toast.error('解签生成失败，请重试', {
-        description: errorMessage,
+      // 检查是否是超时或网络错误
+      const isTimeoutOrNetworkError = 
+        errorMessage.includes('超时') || 
+        errorMessage.includes('网络') ||
+        errorMessage.includes('TIMEOUT') ||
+        errorMessage.includes('NETWORK');
+      
+      toast.error(isTimeoutOrNetworkError ? '由于网络问题暂时未能解读' : '解签生成失败，请重试', {
+        description: isTimeoutOrNetworkError ? '请稍后重试' : errorMessage,
         action: {
           label: '重试',
           onClick: handleGenerateInterpretation

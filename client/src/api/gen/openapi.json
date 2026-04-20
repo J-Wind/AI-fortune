@@ -120,54 +120,6 @@
         ]
       }
     },
-    "/api/fortune/share": {
-      "post": {
-        "operationId": "FortuneShareController_shareFortune",
-        "summary": "分享解签结果到飞书",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ShareRequestDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "分享成功",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ShareResponseDto"
-                }
-              }
-            }
-          },
-          "201": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ShareResponseDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "参数错误"
-          },
-          "500": {
-            "description": "服务器错误"
-          }
-        },
-        "tags": [
-          "fortune"
-        ]
-      }
-    },
     "/api/download/app": {
       "get": {
         "operationId": "DownloadController_downloadApp",
@@ -338,54 +290,6 @@
         },
         "required": [
           "fortuneText"
-        ]
-      },
-      "ShareRequestDto": {
-        "type": "object",
-        "properties": {
-          "title": {
-            "type": "string",
-            "description": "签文标题"
-          },
-          "content": {
-            "type": "string",
-            "description": "签文内容"
-          },
-          "summary": {
-            "type": "string",
-            "description": "深度解读摘要"
-          },
-          "imageUrl": {
-            "type": "string",
-            "description": "AI图片链接"
-          }
-        },
-        "required": [
-          "title",
-          "content",
-          "summary",
-          "imageUrl"
-        ]
-      },
-      "ShareResponseDto": {
-        "type": "object",
-        "properties": {
-          "success": {
-            "type": "boolean",
-            "description": "操作是否成功"
-          },
-          "message": {
-            "type": "string",
-            "description": "操作结果消息"
-          },
-          "data": {
-            "type": "object",
-            "description": "额外数据"
-          }
-        },
-        "required": [
-          "success",
-          "message"
         ]
       }
     }

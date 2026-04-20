@@ -3,7 +3,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './custom.gen';
-import type { DownloadControllerDownloadAppData, DownloadControllerDownloadAppResponses, FortuneControllerGenerateImageData, FortuneControllerGenerateImageResponses, FortuneInterpretationControllerGenerateInterpretationData, FortuneInterpretationControllerGenerateInterpretationResponses, FortuneShareControllerShareFortuneData, FortuneShareControllerShareFortuneErrors, FortuneShareControllerShareFortuneResponses, FortuneTextControllerGenerateFortuneTextData, FortuneTextControllerGenerateFortuneTextResponses } from './types.gen';
+import type { DownloadControllerDownloadAppData, DownloadControllerDownloadAppResponses, FortuneControllerGenerateImageData, FortuneControllerGenerateImageResponses, FortuneInterpretationControllerGenerateInterpretationData, FortuneInterpretationControllerGenerateInterpretationResponses, FortuneTextControllerGenerateFortuneTextData, FortuneTextControllerGenerateFortuneTextResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -59,20 +59,6 @@ export const fortuneTextControllerGenerateFortuneText = <ThrowOnError extends bo
 export const fortuneInterpretationControllerGenerateInterpretation = <ThrowOnError extends boolean = false>(options: Options<FortuneInterpretationControllerGenerateInterpretationData, ThrowOnError>) => {
     return (options.client ?? client).post<FortuneInterpretationControllerGenerateInterpretationResponses, unknown, ThrowOnError>({
         url: '/api/fortune/generate-interpretation',
-        ...options,
-        headers: {
-            'Content-Type': 'application/json',
-            ...options.headers
-        }
-    });
-};
-
-/**
- * 分享解签结果到飞书
- */
-export const fortuneShareControllerShareFortune = <ThrowOnError extends boolean = false>(options: Options<FortuneShareControllerShareFortuneData, ThrowOnError>) => {
-    return (options.client ?? client).post<FortuneShareControllerShareFortuneResponses, FortuneShareControllerShareFortuneErrors, ThrowOnError>({
-        url: '/api/fortune/share',
         ...options,
         headers: {
             'Content-Type': 'application/json',

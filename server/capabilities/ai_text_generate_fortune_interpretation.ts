@@ -38,24 +38,24 @@ interface Response {
   message?: string;
 }
 
+// 阿里千问 DashScope API 响应结构
 interface QianwenResponse {
-  id: string;
-  object: string;
-  created: number;
-  model: string;
-  choices: Array<{
-    index: number;
-    message: {
-      role: string;
-      content: string;
-    };
-    finish_reason: string;
-  }>;
+  output: {
+    text?: string;
+    choices?: Array<{
+      message: {
+        content: string;
+        role: string;
+      };
+      finish_reason: string;
+    }>;
+  };
   usage: {
-    prompt_tokens: number;
-    completion_tokens: number;
+    input_tokens: number;
+    output_tokens: number;
     total_tokens: number;
   };
+  request_id: string;
 }
 
 export const callCapabilities = async (input: InputParams): Promise<Response> => {
@@ -70,7 +70,8 @@ export const callCapabilities = async (input: InputParams): Promise<Response> =>
       };
     }
     
-    const prompt = `请对以下签文进行深度解读，严格按照以下四个模块格式输出：
+    const systemPrompt = '你是一位精通易经与东方古典文化的隐世占卜师，擅长深度解读签文。';
+    const userPrompt = `请对以下签文进行深度解读，严格按照以下四个模块格式输出：
 
 1. 时节呼应：分析当前时节与签文的关联，反映用户内心的季节感受和情感波动；
 2. 卦象智慧：解读易经卦象的深层含义和智慧启示；
@@ -83,18 +84,17 @@ export const callCapabilities = async (input: InputParams): Promise<Response> =>
     
     const requestData = {
       model: "qwen-plus",
-      messages: [
-        {
-          role: "system",
-          content: "你是一位精通易经与东方古典文化的隐世占卜师，擅长深度解读签文。"
-        },
-        {
-          role: "user",
-          content: prompt
-        }
-      ],
-      temperature: 0.7,
-      max_tokens: 2048
+      input: {
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt }
+        ]
+      },
+      parameters: {
+        temperature: 0.7,
+        max_tokens: 2048,
+        result_format: "message"
+      }
     };
 
     logger.log('千问 API 请求数据: ' + JSON.stringify(requestData));
@@ -116,8 +116,14 @@ export const callCapabilities = async (input: InputParams): Promise<Response> =>
     logger.log(`千问 API 响应状态: ${response.status}`);
     logger.log('千问 API 响应数据: ' + JSON.stringify(response.data));
     
-    if (response.data.choices && response.data.choices.length > 0) {
-      const content = response.data.choices[0].message.content;
+    let content = '';
+    if (response.data.output.choices && response.data.output.choices.length > 0) {
+      content = response.data.output.choices[0].message.content;
+    } else if (response.data.output.text) {
+      content = response.data.output.text;
+    }
+    
+    if (content) {
       return {
         code: 0,
         data: {

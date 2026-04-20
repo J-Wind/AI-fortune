@@ -31,32 +31,31 @@ interface FailureOutput {
 interface Response {
   code: number;
   data?: {
-    output?: Output; // 执行成功时的输出结果
-    outcome?: string; // 执行结果，success或error
-    failureOutput?: FailureOutput; // 执行失败时的输出结果
+    output?: Output;
+    outcome?: string;
+    failureOutput?: FailureOutput;
   };
-  message?: string; // 发生系统错误时的错误信息
+  message?: string;
 }
 
-// 阿里千问 API 响应结构
+// 阿里千问 DashScope API 响应结构
 interface QianwenResponse {
-  id: string;
-  object: string;
-  created: number;
-  model: string;
-  choices: Array<{
-    index: number;
-    message: {
-      role: string;
-      content: string;
-    };
-    finish_reason: string;
-  }>;
+  output: {
+    text?: string;
+    choices?: Array<{
+      message: {
+        content: string;
+        role: string;
+      };
+      finish_reason: string;
+    }>;
+  };
   usage: {
-    prompt_tokens: number;
-    completion_tokens: number;
+    input_tokens: number;
+    output_tokens: number;
     total_tokens: number;
   };
+  request_id: string;
 }
 
 // Capability AI神秘东方签文生成, 功能是: 根据用户输入的心境、想法生成神秘东方风格签文，含签号、主签文、文化引用与卦象
@@ -66,7 +65,6 @@ interface QianwenResponse {
  */
 export const callCapabilities = async (input: InputParams): Promise<Response> => {
   try {
-    // 从环境变量中获取阿里千问 API 密钥
     const apiKey = process.env['AI_API_KEY'] || '';
     
     if (!apiKey) {
@@ -77,23 +75,27 @@ export const callCapabilities = async (input: InputParams): Promise<Response> =>
       };
     }
     
-    // 构建千问 API 请求
-    const prompt = `你是一位精通易经与东方古典文化的隐世占卜师。请根据以下用户心境：${input.mood}，生成一段神秘东方风格的签文，要求：\n1. 签号：用天干地支格式给出，如“甲子”。\n2. 主签文：四句七言古诗，蕴含哲理。\n3. 文化引用：引用一句易经卦辞或诗经原文，并给出白话解释。4. 卦象：给出对应的易经卦名、卦象符号（如☰☰）及其含义。整体语言保持古雅神秘，不超过200字。`;
+    const systemPrompt = '你是一位精通易经与东方古典文化的隐世占卜师。';
+    const userPrompt = `请根据以下用户心境：${input.mood}，生成一段神秘东方风格的签文，要求：
+1. 签号：用天干地支格式给出，如"甲子"。
+2. 主签文：四句七言古诗，蕴含哲理。
+3. 文化引用：引用一句易经卦辞或诗经原文，并给出白话解释。
+4. 卦象：给出对应的易经卦名、卦象符号（如☰☰）及其含义。
+整体语言保持古雅神秘，不超过200字。`;
     
     const requestData = {
-      model: "qwen-plus", // 千问模型名称
-      messages: [
-        {
-          role: "system",
-          content: "你是一位精通易经与东方古典文化的隐世占卜师。"
-        },
-        {
-          role: "user",
-          content: prompt
-        }
-      ],
-      temperature: 0.5,
-      max_tokens: 1024
+      model: "qwen-plus",
+      input: {
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt }
+        ]
+      },
+      parameters: {
+        temperature: 0.5,
+        max_tokens: 1024,
+        result_format: "message"
+      }
     };
 
     logger.log('千问 API 请求数据: ' + JSON.stringify(requestData));
@@ -109,15 +111,21 @@ export const callCapabilities = async (input: InputParams): Promise<Response> =>
       requestData,
       {
         headers: header,
+        timeout: 60000,
       },
     );
     
     logger.log(`千问 API 响应状态: ${response.status}`);
     logger.log('千问 API 响应数据: ' + JSON.stringify(response.data));
     
-    // 处理千问 API 响应
-    if (response.data.choices && response.data.choices.length > 0) {
-      const content = response.data.choices[0].message.content;
+    let content = '';
+    if (response.data.output.choices && response.data.output.choices.length > 0) {
+      content = response.data.output.choices[0].message.content;
+    } else if (response.data.output.text) {
+      content = response.data.output.text;
+    }
+    
+    if (content) {
       return {
         code: 0,
         data: {
@@ -135,18 +143,15 @@ export const callCapabilities = async (input: InputParams): Promise<Response> =>
     }
   } catch (error: unknown) {
     if (axios.isAxiosError(error)) {
-      // Axios错误 - 网络请求相关
       logger.error(`Axios错误类型: ${error.code || 'UNKNOWN'}`);
       logger.error(`错误消息: ${error.message}`);
 
       if (error.response) {
-        // 服务器响应了，但状态码不是2xx
         logger.error(`HTTP状态码: ${error.response.status}`);
         logger.error(`HTTP状态文本: ${error.response.statusText}`);
         logger.error(`响应数据: ${JSON.stringify(error.response.data)}`);
         logger.error(`响应头: ${JSON.stringify(error.response.headers)}`);
       } else if (error.request) {
-        // 请求已发送但无响应
         logger.error('请求已发送但未收到响应');
         logger.error(
           `请求配置: ${JSON.stringify({
@@ -159,12 +164,10 @@ export const callCapabilities = async (input: InputParams): Promise<Response> =>
           })}`,
         );
       } else {
-        // 请求配置错误
         logger.error('请求配置错误');
         logger.error(`错误消息: ${error.message}`);
       }
 
-      // 检查网络相关错误
       if (error.code === 'ECONNREFUSED') {
         logger.error('连接被拒绝，请检查目标服务是否运行');
       } else if (error.code === 'ETIMEDOUT') {
@@ -178,12 +181,10 @@ export const callCapabilities = async (input: InputParams): Promise<Response> =>
         logger.error('SSL证书验证失败，请检查证书配置');
       }
     } else if (error instanceof Error) {
-      // 通用错误
       logger.error(`错误名称: ${error.name}`);
       logger.error(`错误消息: ${error.message}`);
       logger.error(`错误堆栈: ${error.stack}`);
     } else {
-      // 未知错误类型
       logger.error(`未知错误类型: ${typeof error}`);
       logger.error(`错误内容: ${String(error)}`);
     }
