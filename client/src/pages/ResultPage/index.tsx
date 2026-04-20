@@ -145,7 +145,7 @@ export default function ResultPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden p-4">
+    <div className="min-h-screen bg-background relative overflow-hidden p-3">
       {/* 背景氛围 */}
       <div className="absolute inset-0 bg-gradient-to-b from-gray-900 to-black"></div>
       <div className="absolute inset-0 opacity-5">
@@ -153,13 +153,13 @@ export default function ResultPage() {
         <div className="absolute bottom-1/3 right-1/4 w-48 h-48 bg-primary rounded-full blur-2xl animate-pulse delay-1000"></div>
       </div>
 
-      <div className="relative z-10 max-w-md mx-auto space-y-8">
+      <div className="relative z-10 max-w-md mx-auto space-y-4">
         {/* 页面标题 */}
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-primary font-serif mb-4">
+          <h1 className="text-2xl font-bold text-primary font-serif mb-2">
             您的运势签文
           </h1>
-          <p className="text-muted-foreground font-serif">
+          <p className="text-sm text-muted-foreground font-serif">
             天机已现，缘起缘落
           </p>
         </div>
@@ -168,14 +168,14 @@ export default function ResultPage() {
         <FortuneCard fortune={fortuneResult} cardRef={cardRef} />
 
         {/* 操作按钮区域 */}
-        <div className="space-y-4">
+        <div className="space-y-3">
           <Button
             onClick={handleInterpret}
-            className="w-full h-14 bg-transparent border-2 border-primary text-primary font-serif text-lg hover:bg-primary/10 transition-all duration-300 hover:scale-105"
+            className="w-full h-12 bg-transparent border-2 border-primary text-primary font-serif text-base hover:bg-primary/10 transition-all duration-300 hover:scale-105"
             size="lg"
             variant="outline"
           >
-            <Sparkles className="w-5 h-5 mr-2" />
+            <Sparkles className="w-4 h-4 mr-2" />
             深度解读
           </Button>
         </div>
