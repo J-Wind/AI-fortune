@@ -16,6 +16,10 @@ app.post('/api/fortune/generate-text', async (req, res) => {
     const { userMood } = req.body;
     const apiKey = process.env.AI_API_KEY;
     
+    console.log('AI_API_KEY exists:', !!apiKey);
+    console.log('AI_API_KEY length:', apiKey ? apiKey.length : 0);
+    console.log('All env keys:', Object.keys(process.env).filter(k => k.includes('AI') || k.includes('KEY')).join(', '));
+    
     if (!apiKey) {
       return res.status(500).json({ 
         success: false, 
@@ -232,4 +236,7 @@ app.get('/{*path}', (req, res) => {
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
+  console.log('AI_API_KEY configured:', !!process.env.AI_API_KEY);
+  console.log('PORT:', process.env.PORT);
+  console.log('SERVER_PORT:', process.env.SERVER_PORT);
 });
