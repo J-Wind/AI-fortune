@@ -284,88 +284,122 @@ app.post('/api/fortune/generate-image', async (req, res) => {
     let mainElements = [];
     let atmosphere = '';
     let timeOfDay = '';
+    let characterPose = '';
 
-    // 提取主要视觉元素
+    // 提取主要视觉元素并匹配人物姿态
     if (fortuneText.includes('月') || fortuneText.includes('明月')) {
-      mainElements.push('一轮皎洁的圆月高悬夜空');
+      mainElements.push('一轮皎洁的圆月高悬夜空，月光如水洒落');
       timeOfDay = '夜晚';
+      characterPose = '人物仰望明月，若有所思';
     }
     if (fortuneText.includes('云') || fortuneText.includes('云开')) {
-      mainElements.push('缭绕的云雾，云层散开露出光芒');
+      mainElements.push('浓密的乌云翻滚，云层间透出微光，云雾缭绕');
+      characterPose = characterPose || '人物立于云雾之间';
     }
     if (fortuneText.includes('花') || fortuneText.includes('花开')) {
-      mainElements.push('盛开的梅花或桃花');
+      mainElements.push('盛开的梅花或桃花，花瓣飘落');
       atmosphere = '春意盎然';
+      characterPose = characterPose || '人物赏花沉思';
     }
     if (fortuneText.includes('水') || fortuneText.includes('溪') || fortuneText.includes('江')) {
-      mainElements.push('静谧的湖面或潺潺溪流');
+      mainElements.push('静谧的湖面或潺潺溪流，水波不兴');
+      characterPose = characterPose || '人物临水而立，俯瞰水面倒影';
     }
     if (fortuneText.includes('山') || fortuneText.includes('峰')) {
-      mainElements.push('远山如黛，层峦叠嶂');
+      mainElements.push('远山如黛，层峦叠嶂，山势连绵');
+      characterPose = characterPose || '人物远眺群山';
     }
     if (fortuneText.includes('松')) {
-      mainElements.push('苍劲的古松');
+      mainElements.push('苍劲的古松，枝干虬曲');
+      characterPose = characterPose || '人物倚松而立';
     }
     if (fortuneText.includes('鹤') || fortuneText.includes('鸟')) {
-      mainElements.push('飞翔的仙鹤或飞鸟');
+      mainElements.push('飞翔的仙鹤或飞鸟，展翅翱翔');
+      characterPose = characterPose || '人物仰观飞鸟';
     }
     if (fortuneText.includes('舟') || fortuneText.includes('船')) {
-      mainElements.push('一叶扁舟');
+      mainElements.push('一叶扁舟漂浮于水面');
+      characterPose = characterPose || '人物独立船头';
     }
     if (fortuneText.includes('亭') || fortuneText.includes('楼')) {
-      mainElements.push('古朴的亭台楼阁');
+      mainElements.push('古朴的亭台楼阁，飞檐翘角，隐于云雾中');
+      characterPose = characterPose || '人物伫立楼阁前';
     }
     if (fortuneText.includes('竹')) {
-      mainElements.push('翠绿的竹林');
+      mainElements.push('翠绿的竹林，竹影婆娑');
+      characterPose = characterPose || '人物穿行竹林间';
     }
     if (fortuneText.includes('雪') || fortuneText.includes('冬')) {
-      mainElements.push('皑皑白雪');
+      mainElements.push('皑皑白雪覆盖大地，雪花飘落');
       atmosphere = '冬日清寂';
+      timeOfDay = '冬日';
+      characterPose = characterPose || '人物踏雪而行';
     }
     if (fortuneText.includes('雨')) {
-      mainElements.push('细雨蒙蒙');
+      mainElements.push('细雨蒙蒙，雨丝如织');
+      characterPose = characterPose || '人物撑伞或冒雨前行';
     }
     if (fortuneText.includes('风')) {
-      mainElements.push('微风吹拂');
+      mainElements.push('微风吹拂，衣袂飘飘');
+      characterPose = characterPose || '人物迎风而立';
     }
     if (fortuneText.includes('日') || fortuneText.includes('阳') || fortuneText.includes('曙')) {
-      mainElements.push('初升的朝阳或夕阳余晖');
+      mainElements.push('初升的朝阳或夕阳余晖，霞光万道');
       timeOfDay = '清晨或黄昏';
+      characterPose = characterPose || '人物面向阳光';
     }
     if (fortuneText.includes('星')) {
-      mainElements.push('璀璨星空');
+      mainElements.push('璀璨星空，繁星点点');
       timeOfDay = '深夜';
+      characterPose = characterPose || '人物仰望星空';
     }
     if (fortuneText.includes('桥')) {
-      mainElements.push('古石桥');
+      mainElements.push('古老的石桥横跨水面');
+      characterPose = characterPose || '人物立于桥头';
     }
     if (fortuneText.includes('路') || fortuneText.includes('径') || fortuneText.includes('道')) {
-      mainElements.push('蜿蜒的小径');
+      mainElements.push('蜿蜒的小径通向远方');
+      characterPose = characterPose || '人物漫步小径上';
     }
 
     // 如果没有匹配到特定元素，使用默认场景
     if (mainElements.length === 0) {
-      mainElements = ['远山近水', '几株古树', '飘落的落叶'];
+      mainElements = ['远山近水', '几株古树', '飘落的落叶', '淡淡的云雾'];
       atmosphere = '宁静致远';
-      timeOfDay = '黄昏';
+      timeOfDay = '黄昏时分';
+      characterPose = '人物静坐沉思，神态安详';
     }
 
-    const imagePrompt = `中国传统水墨画风格，意境深远，古风韵味。
+    const imagePrompt = `创作一幅精美的中国传统水墨画插画，风格类似宋代工笔与写意结合。
 
-画面必须包含以下核心元素（按重要性排序）：
+【核心构图】
+画面主体：一位古代文人士大夫形象（身着宽袍大袖的汉服，发髻高束，气质儒雅）
+人物姿态：${characterPose}
+人物位置：画面前景偏一侧，约占画面1/3，侧身或半侧面，营造意境感
+
+【场景元素】
 ${mainElements.map((el, i) => `${i + 1}. ${el}`).join('\n')}
 
-时间设定：${timeOfDay || '黄昏时分'}
-整体氛围：${atmosphere || '宁静神秘'}
+【时间氛围】
+时间设定：${timeOfDay}
+整体氛围：${atmosphere || '神秘悠远'}
 
-艺术风格要求：
-- 淡雅水墨色调，大量留白
-- 像宋代文人画家的作品（如马远、夏圭的风格）
-- 构图有层次感：近景、中景、远景分明
-- 色彩以黑白灰为主，点缀淡淡的青绿色或赭石色
-- 画面要有诗意和禅意
+【艺术风格要求】
+- 采用中国传统水墨画技法，笔墨酣畅淋漓
+- 人物刻画精细，线条流畅，面部表情传神
+- 背景采用写意手法，虚实结合，大量留白
+- 构图讲究：近景（人物）、中景（景物）、远景（山水）层次分明
+- 色彩以水墨黑白灰为主调，适当点缀淡青、赭石等传统色
+- 光影处理：月光/日光从特定角度洒下，营造戏剧性光影效果
+- 整体格调高雅脱俗，富有诗意和禅意
 
-特别注意：如果签文提到"月"或"明月"，月亮必须是画面的焦点之一，清晰可见且占据重要位置`;
+【绝对禁止】
+- 图片中不允许出现任何文字、汉字、字母、符号
+- 不允许出现印章、题字、落款
+- 不允许出现现代元素
+- 只呈现纯绘画艺术作品`;
+
+    const negativePrompt = `文字, 字母, 汉字, 印章, 题字, 落款, 签名, watermark, text, writing, calligraphy on image, modern elements, photograph, realistic photo`;
     
     // 第一步：提交图片生成任务
     const submitResponse = await axios.post(
@@ -386,7 +420,8 @@ ${mainElements.map((el, i) => `${i + 1}. ${el}`).join('\n')}
         },
         parameters: {
           size: "1024*1024",
-          n: 1
+          n: 1,
+          negative_prompt: negativePrompt
         }
       },
       {
