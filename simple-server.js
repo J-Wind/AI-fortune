@@ -320,8 +320,9 @@ app.post('/api/fortune/generate-image', async (req, res) => {
 构图：画面要有层次感，近景中景远景分明
 色彩：以黑白灰为主，点缀淡淡的青绿色或赭石色`;
     
-    const response = await axios.post(
-      'https://dashscope.aliyuncs.com/api/v1/services/aigc/text2image/image-synthesis',
+    // 第一步：提交图片生成任务
+    const submitResponse = await axios.post(
+      'https://dashscope.aliyuncs.com/api/v1/services/aigc/image-generation/generation',
       {
         model: "wan2.7-image-pro",
         input: {
@@ -335,20 +336,49 @@ app.post('/api/fortune/generate-image', async (req, res) => {
       {
         headers: {
           'Authorization': `Bearer ${apiKey}`,
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'X-DashScope-Async': 'enable'
         },
-        timeout: 60000
+        timeout: 30000
       }
     );
     
-    // 获取生成的图片URL
+    const taskId = submitResponse.data.output?.task_id;
+    if (!taskId) {
+      throw new Error('未获取到任务ID');
+    }
+    
+    // 第二步：轮询任务状态
     let imageUrl = '';
-    if (response.data.output && response.data.output.results && response.data.output.results.length > 0) {
-      imageUrl = response.data.output.results[0].url;
+    let attempts = 0;
+    const maxAttempts = 30;
+    
+    while (attempts < maxAttempts) {
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      const statusResponse = await axios.get(
+        `https://dashscope.aliyuncs.com/api/v1/tasks/${taskId}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${apiKey}`
+          },
+          timeout: 10000
+        }
+      );
+      
+      const taskStatus = statusResponse.data.output?.task_status;
+      
+      if (taskStatus === 'SUCCEEDED') {
+        imageUrl = statusResponse.data.output?.results?.[0]?.url || '';
+        break;
+      } else if (taskStatus === 'FAILED') {
+        throw new Error('图片生成任务失败');
+      }
+      
+      attempts++;
     }
     
     if (!imageUrl) {
-      // 如果API调用失败或没有返回图片，返回一个占位图
       imageUrl = 'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=800&h=600&fit=crop';
     }
     
@@ -359,7 +389,6 @@ app.post('/api/fortune/generate-image', async (req, res) => {
     });
   } catch (error) {
     console.error('图片生成错误:', error.message);
-    // 返回一个默认的中国风水墨画作为备用
     res.json({
       success: true,
       imageUrl: 'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=800&h=600&fit=crop',
