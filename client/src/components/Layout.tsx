@@ -85,7 +85,7 @@ function Layout2Mobile() {
   return <Outlet />;
 }
 
-export default function Layout2() {
+export default function Layout() {
   const isMobile = useIsMobile();
   if (!isMobile) {
     return <Layout2Desktop />;
