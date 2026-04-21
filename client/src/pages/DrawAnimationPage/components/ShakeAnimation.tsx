@@ -109,9 +109,7 @@ export function ShakeAnimation({ onComplete, userMood, userThought, seasonFeel }
 
         const response = await fortuneTextControllerGenerateFortuneText({
           body: {
-            mood: userMood,
-            thought: userThought,
-            seasonFeel: seasonFeel
+            userMood: userMood
           }
         });
 
