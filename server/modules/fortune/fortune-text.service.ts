@@ -5,13 +5,13 @@ import { callCapabilities } from '@server/capabilities/ai_text_generate_oracle';
 export class FortuneTextService {
   async generateFortune(mood: string): Promise<any> {
     try {
-      // 调用AI签文生成Capability
+      // 调用 AI 签文生成 Capability
       const result = await callCapabilities({ mood });
       
       if (result.code === 0 && result.data?.output?.response) {
         const aiResponse = result.data.output.response;
         
-        // 解析AI返回的签文内容
+        // 解析 AI 返回的签文内容
         const parsedFortune = this.parseFortuneResponse(aiResponse);
         
         return {
@@ -20,7 +20,7 @@ export class FortuneTextService {
           rawResponse: aiResponse
         };
       } else {
-        // 如果AI调用失败，返回默认签文
+        // 如果 AI 调用失败，返回默认签文
         return this.getDefaultFortune(mood);
       }
     } catch (error) {
@@ -35,22 +35,30 @@ export class FortuneTextService {
     
     // 尝试提取签号 - 改进匹配逻辑
     let number = '上上签'; // 默认改为上上签，避免固定显示甲子
+    let fortune = '上上签'; // 默认运势等级
     
     // 多种匹配模式
     const numberMatch = response.match(/【签号】\s*([^\n【]+)/) || 
-                       response.match(/签号[:：]\s*([^\n【]+)/) ||
-                       response.match(/(第[^签]+签)/) ||
+                       response.match(/签号 [:：]\s*([^\n【]+)/) ||
+                       response.match(/(第 [^ 签]+签)/) ||
                        response.match(/([上下中]+[上下吉凶平]+签)/);
     
     if (numberMatch && numberMatch[1]) {
-      number = numberMatch[1].trim();
+      const matchedText = numberMatch[1].trim();
+      // 如果匹配到的是运势等级（上上签等）
+      if (matchedText.includes('上上') || matchedText.includes('上吉') || matchedText.includes('中吉') || matchedText.includes('中平') || matchedText.includes('下')) {
+        fortune = matchedText;
+      } else {
+        // 如果是天干地支格式
+        number = matchedText;
+      }
     }
 
     // 尝试提取主签文
     let mainText = '花开富贵，心想事成。贵人相助，事业通达。';
     const mainTextMatch = response.match(/【主签文】\s*([^【]+)/) || 
-                         response.match(/主签文[:：]\s*([^\n【]+)/) ||
-                         response.match(/([^。]+。[^。]+。[^。]+。[^。]+。)/);
+                         response.match(/主签文 [:：]\s*([^\n【]+)/) ||
+                         response.match(/([^.]+。[^.]+。[^.]+。[^.]+。)/);
     if (mainTextMatch && mainTextMatch[1]) {
       mainText = mainTextMatch[1].trim();
     }
@@ -58,7 +66,7 @@ export class FortuneTextService {
     // 尝试提取文化引用
     let culturalReference = '《易经》有云："天行健，君子以自强不息。"';
     const referenceMatch = response.match(/【文化引用】\s*([^【]+)/) || 
-                          response.match(/文化引用[:：]\s*([^\n【]+)/) ||
+                          response.match(/文化引用 [:：]\s*([^\n【]+)/) ||
                           response.match(/(《[^》]+》[^\n]+)/);
     if (referenceMatch && referenceMatch[1]) {
       culturalReference = referenceMatch[1].trim();
@@ -67,13 +75,14 @@ export class FortuneTextService {
     // 尝试提取卦象
     let hexagram = '乾卦 - 天行健，君子以自强不息';
     const hexagramMatch = response.match(/【卦象】\s*([^\n【]+)/) || 
-                         response.match(/卦象[:：]\s*([^\n【]+)/) ||
-                         response.match(/([^卦]+卦[^\n]+)/);
+                         response.match(/卦象 [:：]\s*([^\n【]+)/) ||
+                         response.match(/([^卦]+卦 [^\n]+)/);
     if (hexagramMatch && hexagramMatch[1]) {
       hexagram = hexagramMatch[1].trim();
     }
 
     return {
+      fortune,
       number,
       mainText,
       culturalReference,
@@ -85,19 +94,22 @@ export class FortuneTextService {
     // 基于用户心境返回不同的默认签文
     const defaultFortunes = [
       {
-        number: '上上签',
+        fortune: '上上签',
+        number: '甲子签',
         mainText: '花开富贵，心想事成。贵人相助，事业通达。',
         culturalReference: '《诗经》有云："桃之夭夭，灼灼其华。之子于归，宜其室家。"',
         hexagram: '乾卦 - 天行健，君子以自强不息'
       },
       {
-        number: '中吉签',
+        fortune: '中吉签',
+        number: '乙丑签',
         mainText: '静待时机，厚积薄发。守得云开见月明。',
         culturalReference: '《道德经》曰："上善若水，水善利万物而不争。"',
         hexagram: '坤卦 - 地势坤，君子以厚德载物'
       },
       {
-        number: '上吉签',
+        fortune: '上吉签',
+        number: '丙寅签',
         mainText: '福星高照，喜气盈门。机缘巧合，收获满满。',
         culturalReference: '《论语》云："有朋自远方来，不亦乐乎？"',
         hexagram: '泰卦 - 天地交泰，万物亨通'
@@ -111,7 +123,7 @@ export class FortuneTextService {
     return {
       success: false, // 标记为默认签文
       ...defaultFortunes[index],
-      message: 'AI签文生成服务暂时不可用，使用默认签文'
+      message: 'AI 签文生成服务暂时不可用，使用默认签文'
     };
   }
 
