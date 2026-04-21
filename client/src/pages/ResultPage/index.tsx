@@ -145,7 +145,7 @@ export default function ResultPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden p-3">
+    <div className="min-h-screen bg-background relative overflow-hidden px-6 py-4">
       {/* 背景氛围 */}
       <div className="absolute inset-0 bg-gradient-to-b from-gray-900 to-black"></div>
       <div className="absolute inset-0 opacity-5">
@@ -153,7 +153,7 @@ export default function ResultPage() {
         <div className="absolute bottom-1/3 right-1/4 w-48 h-48 bg-primary rounded-full blur-2xl animate-pulse delay-1000"></div>
       </div>
 
-      <div className="relative z-10 max-w-md mx-auto h-screen flex flex-col justify-between py-4">
+      <div className="relative z-10 max-w-md mx-auto h-screen flex flex-col justify-between">
         {/* 上半部分：标题 + 签文卡片 */}
         <div className="flex-1 flex flex-col justify-center space-y-2">
           {/* 页面标题 */}

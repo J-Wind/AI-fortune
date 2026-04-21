@@ -10,7 +10,7 @@ import { AiImage } from './components/AiImage';
 import { Sparkles, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { logger } from '@lark-apaas/client-toolkit/logger';
-import { fortuneInterpretationControllerGenerateInterpretation } from '@/api/gen';
+import { fortuneInterpretationControllerGenerateInterpretation, fortuneControllerGenerateImage } from '@/api/gen';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function InterpretPage() {
@@ -118,7 +118,19 @@ export default function InterpretPage() {
         fortuneNumber: fortuneResult.number
       });
 
-      const interpretation = await generateInterpretation();
+      // 并行生成解读内容和图片
+      const [interpretation, imageResult] = await Promise.all([
+        generateInterpretation(),
+        fortuneControllerGenerateImage({
+          body: {
+            fortuneText: fortuneResult.mainText,
+            imageRatio: "16:9"
+          }
+        }).catch((err) => {
+          logger.warn('图片生成失败', { error: err instanceof Error ? err.message : '未知错误' });
+          return null;
+        })
+      ]);
 
       logger.info('AI解读生成完成，设置结果', {
         fortuneNumber: fortuneResult.number,
@@ -126,6 +138,11 @@ export default function InterpretPage() {
       });
 
       setInterpretationResult(interpretation);
+
+      // 设置生成的图片
+      if (imageResult?.data?.imageUrl) {
+        useFortuneStore.getState().setFortuneImage(imageResult.data.imageUrl);
+      }
 
       toast.success('解读生成成功', {
         description: 'AI已为您深度解读签文含义',

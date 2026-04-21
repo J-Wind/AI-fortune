@@ -129,21 +129,6 @@ export function ShakeAnimation({ onComplete, userMood, userThought, seasonFeel }
           fortuneResult = generateDefaultFortune(userThought, userMood, seasonFeel);
         }
 
-        setStatusText('绘制灵图中...');
-        setStatusSubtext('水墨丹青正在成型...');
-
-        try {
-          const imageResult = await fortuneControllerGenerateImage({
-            body: {
-              fortuneText: fortuneResult.mainText,
-              imageRatio: "16:9"
-            }
-          });
-          fortuneResult.imageUrl = imageResult.data?.imageUrl;
-        } catch (imageError) {
-          logger.warn('图片生成失败', { error: imageError instanceof Error ? imageError.message : '未知错误' });
-        }
-
       } catch (error) {
         logger.error('AI签文生成异常，使用基于用户输入的默认签文', { error: error instanceof Error ? error.message : '未知错误' });
         fortuneResult = generateDefaultFortune(userThought, userMood, seasonFeel);

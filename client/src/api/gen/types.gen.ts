@@ -36,14 +36,6 @@ export type GenerateFortuneRequestDto = {
      * 用户当前心境或想法
      */
     userMood: string;
-    /**
-     * 用户心中所念
-     */
-    thought?: string;
-    /**
-     * 时节感受
-     */
-    seasonFeel?: string;
 };
 
 export type GenerateFortuneResponseDto = {
