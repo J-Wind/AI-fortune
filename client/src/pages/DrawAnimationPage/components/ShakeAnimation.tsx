@@ -137,17 +137,29 @@ export function ShakeAnimation({ onAnimationComplete, userMood }: ShakeAnimation
       
       await animationControls.stop();
       
-      setTimeout(() => {
-        setShowAnimation(false);
-        
+      // 如果是 AI 生成的签文，立即跳转，不等待淡出动画
+      if (fortuneData.isAI) {
+        logger.info('AI 签文生成成功，立即跳转', {
+          fortuneNumber: fortuneData.number
+        });
+        // 短暂延迟让用户看到签筒完成状态
         setTimeout(() => {
           onAnimationComplete(fortuneData);
-          logger.info('抽签动画完成', {
-            fortuneNumber: fortuneData.number,
-            isAI: fortuneData.isAI || false
-          });
-        }, 500);
-      }, 300);
+        }, 100);
+      } else {
+        // 默认签文保持原有淡出动画
+        setTimeout(() => {
+          setShowAnimation(false);
+          
+          setTimeout(() => {
+            onAnimationComplete(fortuneData);
+            logger.info('抽签动画完成', {
+              fortuneNumber: fortuneData.number,
+              isAI: fortuneData.isAI || false
+            });
+          }, 500);
+        }, 300);
+      }
     };
 
     generateAIFortune();
