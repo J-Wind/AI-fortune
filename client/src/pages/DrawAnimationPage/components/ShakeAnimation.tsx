@@ -2,57 +2,83 @@ import React, { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence, useAnimation } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
 import { logger } from '@lark-apaas/client-toolkit/logger';
-import { fortuneTextControllerGenerateFortuneText } from '@/api/gen';
+import { fortuneTextControllerGenerateFortuneText, fortuneControllerGenerateImage } from '@/api/gen';
 
 interface ShakeAnimationProps {
-  onAnimationComplete: (fortune: any) => void;
+  onComplete: (fortune: any) => void;
   userMood: string;
+  userThought: string;
+  seasonFeel: string;
 }
 
-const fortunePool = [
-  {
-    fortune: '上上签',
-    number: '甲子签',
-    mainText: '花开富贵，心想事成。贵人相助，事业通达。',
-    culturalReference: '《诗经》有云："桃之夭夭，灼灼其华。之子于归，宜其室家。"',
-    hexagram: '乾卦 - 天行健，君子以自强不息'
-  },
-  {
-    fortune: '中吉签',
-    number: '乙丑签',
-    mainText: '静待时机，厚积薄发。守得云开见月明。',
-    culturalReference: '《道德经》曰："上善若水，水善利万物而不争。"',
-    hexagram: '坤卦 - 地势坤，君子以厚德载物'
-  },
-  {
-    fortune: '上吉签',
-    number: '丙寅签',
-    mainText: '福星高照，喜气盈门。机缘巧合，收获满满。',
-    culturalReference: '《论语》云："有朋自远方来，不亦乐乎？"',
-    hexagram: '泰卦 - 天地交泰，万物亨通'
-  },
-  {
-    fortune: '中平签',
-    number: '丁卯签',
-    mainText: '平淡是真，守成是福。静心修身，待时而动。',
-    culturalReference: '《中庸》曰："君子中庸，小人反中庸。"',
-    hexagram: '艮卦 - 艮其止，止其所也'
-  },
-  {
-    fortune: '下签',
-    number: '戊辰签',
-    mainText: '否极泰来，转机将至。耐心等待，终见曙光。',
-    culturalReference: '《易经》云："穷则变，变则通，通则久。"',
-    hexagram: '否卦 - 天地不交，万物不通'
-  }
-];
+const generateDefaultFortune = (thought: string, mood: string, seasonFeel: string) => {
+  const tianGan = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
+  const diZhi = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
+  
+  const randomTianGan = tianGan[Math.floor(Math.random() * tianGan.length)];
+  const randomDiZi = diZhi[Math.floor(Math.random() * diZhi.length)];
+  const signNumber = `${randomTianGan}${randomDiZi}签`;
 
-export function ShakeAnimation({ onAnimationComplete, userMood }: ShakeAnimationProps) {
+  let fortune = '中吉签';
+  let mainText = '';
+  let culturalReference = '';
+  let hexagram = '';
+
+  if (thought.includes('工作') || thought.includes('事业') || thought.includes('职场') || thought.includes('升职') || thought.includes('加薪')) {
+    fortune = '上吉签';
+    mainText = `${mood === '焦虑' ? '云开雾散见晴天' : '鹏程万里展宏图'}，${thought.includes('升职') ? '青云直上步高升' : '功成名就指日待'}。莫道征途多险阻，${seasonFeel ? seasonFeel.slice(0, 2) : '春风'}得意马蹄疾。`;
+    culturalReference = `《易经·乾卦》曰："天行健，君子以自强不息。"白话解：天道运行刚劲强健，君子应效法天道，奋发图强，永不停息。`;
+    hexagram = '乾卦 ☰☰';
+  } else if (thought.includes('感情') || thought.includes('爱情') || thought.includes('恋爱') || thought.includes('婚姻') || thought.includes('对象') || thought.includes('伴侣')) {
+    fortune = mood === '焦虑' ? '中吉签' : '上上签';
+    mainText = `${mood === '期待' ? '月下花前遇良缘' : '红线暗牵两心连'}，${thought.includes('婚姻') ? '琴瑟和鸣百年好' : '此去花开并蒂莲'}。${mood === '焦虑' ? '莫愁前路无知己' : '天赐良缘终有日'}，${seasonFeel ? seasonFeel.slice(0, 2) : '佳偶'}天成共婵娟。`;
+    culturalReference = `《易经·咸卦》曰："咸，亨，利贞。"白话解：感应相通，事物和谐顺畅。感情之事需两心相悦，自然水到渠成。`;
+    hexagram = '咸卦 ☶☱';
+  } else if (thought.includes('考试') || thought.includes('学业') || thought.includes('学习') || thought.includes('成绩') || thought.includes('升学')) {
+    fortune = '上吉签';
+    mainText = `寒窗苦读志如钢，笔走龙蛇意气扬。金榜题名终有日，${seasonFeel || '春风'}得意马蹄香。`;
+    culturalReference = `《易经·蒙卦》曰："匪我求童蒙，童蒙求我。"白话解：不是我去求幼童学习，而是幼童来求我教导。求学需主动积极，方能有所成就。`;
+    hexagram = '蒙卦 ☵☶';
+  } else if (thought.includes('健康') || thought.includes('身体') || thought.includes('病') || thought.includes('医') || thought.includes('养生')) {
+    fortune = mood === '焦虑' ? '中平签' : '上吉签';
+    mainText = `${mood === '焦虑' ? '身心康泰福寿长' : '否极泰来转乾坤'}，${thought.includes('病') ? '药到病除体安康' : '精气神足百病消'}。静心调养待时机，${seasonFeel || '秋月'}春风皆宜人。`;
+    culturalReference = `《易经·颐卦》曰："颐，贞吉。"白话解：养正则吉。注重调养身心，顺应自然规律，健康自然随之而来。`;
+    hexagram = '颐卦 ☳☷';
+  } else if (thought.includes('财运') || thought.includes('钱') || thought.includes('投资') || thought.includes('生意') || thought.includes('财富')) {
+    fortune = '上上签';
+    mainText = `财源广进达三江，商机无限聚八方。积少成多终致富，${seasonFeel || '金秋'}硕果满庭芳。`;
+    culturalReference = `《易经·坤卦》曰："地势坤，君子以厚德载物。"白话解：大地的气势厚实和顺，君子应增厚美德，容载万物。财富需以德为基础。`;
+    hexagram = '坤卦 ☷☷';
+  } else {
+    fortune = ['上上签', '上吉签', '中吉签'][Math.floor(Math.random() * 3)];
+    
+    const poems = [
+      `${thought || '心之所念'}化云烟，${mood || '平静'}如水映青天。${seasonFeel || '四季'}轮回皆有道，守得云开见月明。`,
+      `${mood === '焦虑' ? '拨开迷雾见青天' : '顺风顺水扬帆起'}，${thought ? thought.slice(0, 4) : '心想事成'}在眼前。莫愁前路无知己，${seasonFeel || '春暖花开'}好运连。`,
+      `天时地利与人和，${thought || '万事'}顺遂乐呵呵。静待时机成大器，${seasonFeel || '秋风送爽'}奏凯歌。`
+    ];
+    
+    mainText = poems[Math.floor(Math.random() * poems.length)];
+    culturalReference = `《易经》有云："积善之家，必有余庆。"白话解：积累善行的人家，必然会有多余的福报。心存善念，自有天佑。`;
+    hexagram = ['泰卦 ☰☷', '既济卦 ☵☲', '益卦 ☳☴'][Math.floor(Math.random() * 3)];
+  }
+
+  return {
+    fortune,
+    number: signNumber,
+    mainText,
+    culturalReference,
+    hexagram,
+    isAI: false
+  };
+};
+
+export function ShakeAnimation({ onComplete, userMood, userThought, seasonFeel }: ShakeAnimationProps) {
   const animationControls = useAnimation();
   const [isAnimating, setIsAnimating] = useState(true);
   const [showAnimation, setShowAnimation] = useState(true);
-  const [fortune, setFortune] = useState<any>(null);
-  const [isGenerating, setIsGenerating] = useState(false);
+  const [statusText, setStatusText] = useState('摇签中...');
+  const [statusSubtext, setStatusSubtext] = useState('天机正在降临...');
   const hasCompletedRef = useRef(false);
 
   useEffect(() => {
@@ -73,106 +99,67 @@ export function ShakeAnimation({ onAnimationComplete, userMood }: ShakeAnimation
 
   useEffect(() => {
     if (hasCompletedRef.current) return;
-    
-    let aiFortuneResult: any = null;
 
-    const generateAIFortune = async () => {
-      setIsGenerating(true);
+    const generateAll = async () => {
+      let fortuneResult: any = null;
+
       try {
-        logger.info('开始生成 AI 签文', { userMood });
-        
+        setStatusText('签文生成中...');
+        setStatusSubtext('天机正在降临...');
+
         const response = await fortuneTextControllerGenerateFortuneText({
           body: {
-            userMood: userMood
+            mood: userMood,
+            thought: userThought,
+            seasonFeel: seasonFeel
           }
-        });
-        
-        logger.info('AI 签文生成 API 调用完成', { 
-          status: response.status,
-          hasData: !!response.data,
         });
 
         if (response.data?.success) {
-          aiFortuneResult = {
+          fortuneResult = {
             fortune: response.data.fortune || '上上签',
-            number: response.data.number || '上上签',
-            mainText: response.data.mainText || '花开富贵，心想事成。',
-            culturalReference: response.data.culturalReference || '《易经》有云："天行健，君子以自强不息。"',
-            hexagram: response.data.hexagram || '乾卦 - 天行健，君子以自强不息',
+            number: response.data.number || '庚辰签',
+            mainText: response.data.mainText || generateDefaultFortune(userThought, userMood, seasonFeel).mainText,
+            culturalReference: response.data.culturalReference || generateDefaultFortune(userThought, userMood, seasonFeel).culturalReference,
+            hexagram: response.data.hexagram || generateDefaultFortune(userThought, userMood, seasonFeel).hexagram,
             isAI: true
           };
-          
-          setFortune(aiFortuneResult);
-          logger.info('AI 签文生成成功', { fortuneNumber: aiFortuneResult.number });
-          
-          triggerAnimationComplete(aiFortuneResult);
         } else {
-          const randomIndex = Math.floor(Math.random() * fortunePool.length);
-          const defaultFortune = fortunePool[randomIndex];
-          aiFortuneResult = defaultFortune;
-          setFortune(defaultFortune);
-          logger.warn('AI 签文生成失败，使用默认签文');
-          
-          triggerAnimationComplete(defaultFortune);
+          logger.warn('AI返回非成功状态，使用基于用户输入的默认签文');
+          fortuneResult = generateDefaultFortune(userThought, userMood, seasonFeel);
         }
+
       } catch (error) {
-        const randomIndex = Math.floor(Math.random() * fortunePool.length);
-        const defaultFortune = fortunePool[randomIndex];
-        aiFortuneResult = defaultFortune;
-        setFortune(defaultFortune);
-        
-        logger.error('AI 签文生成异常', {
-          error: error instanceof Error ? error.message : '未知错误'
-        });
-        
-        triggerAnimationComplete(defaultFortune);
-      } finally {
-        setIsGenerating(false);
+        logger.error('AI签文生成异常，使用基于用户输入的默认签文', { error: error instanceof Error ? error.message : '未知错误' });
+        fortuneResult = generateDefaultFortune(userThought, userMood, seasonFeel);
       }
+
+      triggerComplete(fortuneResult);
     };
 
-    const triggerAnimationComplete = async (fortuneData: any) => {
+    const triggerComplete = async (fortuneData: any) => {
       if (hasCompletedRef.current) return;
       hasCompletedRef.current = true;
-      
+
       await animationControls.stop();
-      
-      // 如果是 AI 生成的签文，立即跳转，不等待淡出动画
-      if (fortuneData.isAI) {
-        logger.info('AI 签文生成成功，立即跳转', {
-          fortuneNumber: fortuneData.number
-        });
-        // 短暂延迟让用户看到签筒完成状态
+
+      setTimeout(() => {
+        setShowAnimation(false);
+
         setTimeout(() => {
-          onAnimationComplete(fortuneData);
-        }, 100);
-      } else {
-        // 默认签文保持原有淡出动画
-        setTimeout(() => {
-          setShowAnimation(false);
-          
-          setTimeout(() => {
-            onAnimationComplete(fortuneData);
-            logger.info('抽签动画完成', {
-              fortuneNumber: fortuneData.number,
-              isAI: fortuneData.isAI || false
-            });
-          }, 500);
-        }, 300);
-      }
+          onComplete(fortuneData);
+        }, 500);
+      }, 300);
     };
 
-    generateAIFortune();
-
-    return () => {
-      // 清理函数
-    };
-  }, [onAnimationComplete, userMood, animationControls]);
+    generateAll();
+  }, [onComplete, userMood, userThought, seasonFeel, animationControls]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* 粒子系统 */}
-      <div className="absolute inset-0 pointer-events-none">
+    <div className="min-h-screen bg-background relative overflow-hidden flex items-center justify-center">
+      {/* 背景氛围 */}
+      <div className="absolute inset-0 bg-gradient-to-b from-gray-900 to-black"></div>
+      <div className="absolute inset-0 opacity-5">
         {Array.from({ length: 20 }).map((_, i) => (
           <motion.div
             key={i}
@@ -206,20 +193,16 @@ export function ShakeAnimation({ onAnimationComplete, userMood }: ShakeAnimation
             exit={{ opacity: 0, scale: 1.2 }}
             transition={{ duration: 0.5 }}
           >
-            {/* 签筒容器 */}
             <motion.div
               className="relative"
               animate={animationControls}
             >
-              {/* 签筒 */}
               <div className="w-32 h-48 bg-gradient-to-b from-gray-800 to-gray-900 rounded-lg border-2 border-primary/40 relative overflow-hidden shadow-2xl">
-                {/* 竹纹效果 */}
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/10 to-transparent"></div>
                 <div className="absolute top-4 left-4 right-4 h-px bg-primary/20"></div>
                 <div className="absolute top-8 left-4 right-4 h-px bg-primary/15"></div>
                 <div className="absolute top-12 left-4 right-4 h-px bg-primary/10"></div>
                 
-                {/* 签条飞出动画 */}
                 <motion.div
                   className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
                   initial={{ y: 0, opacity: 0 }}
@@ -242,7 +225,6 @@ export function ShakeAnimation({ onAnimationComplete, userMood }: ShakeAnimation
               </div>
             </motion.div>
             
-            {/* 状态文案 */}
             <motion.div
               className="mt-12"
               initial={{ opacity: 0 }}
@@ -255,7 +237,7 @@ export function ShakeAnimation({ onAnimationComplete, userMood }: ShakeAnimation
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 1 }}
               >
-                {isGenerating ? "签文生成中..." : "摇签中..."}
+                {statusText}
               </motion.p>
               <motion.p
                 className="text-sm text-muted-foreground"
@@ -263,7 +245,7 @@ export function ShakeAnimation({ onAnimationComplete, userMood }: ShakeAnimation
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 1.5 }}
               >
-                {isGenerating ? "天机正在降临..." : "签已出..."}
+                {statusSubtext}
               </motion.p>
               <motion.p
                 className="text-xs text-muted-foreground mt-1"
@@ -271,7 +253,7 @@ export function ShakeAnimation({ onAnimationComplete, userMood }: ShakeAnimation
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 2 }}
               >
-                {isGenerating ? "请稍候..." : "解读天意..."}
+                请稍候...
               </motion.p>
             </motion.div>
           </motion.div>
