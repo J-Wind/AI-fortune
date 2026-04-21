@@ -14,7 +14,7 @@ app.use(express.static(path.join(__dirname, 'dist/client')));
 app.post('/api/fortune/generate-text', async (req, res) => {
   try {
     const { userMood, userThought, seasonFeel } = req.body;
-    const apiKey = process.env.AI_API_KEY || 'sk-368063b63be646edac7d2fa4bceb069a';
+    const apiKey = process.env.AI_API_KEY || 'sk-a3f1a1633c00421c93985504d8fc988d';
     
     console.log('AI_API_KEY exists:', !!apiKey);
     console.log('AI_API_KEY length:', apiKey ? apiKey.length : 0);
@@ -156,7 +156,7 @@ app.post('/api/fortune/generate-text', async (req, res) => {
 app.post('/api/fortune/generate-interpretation', async (req, res) => {
   try {
     const { fortuneText } = req.body;
-    const apiKey = process.env.AI_API_KEY || 'sk-368063b63be646edac7d2fa4bceb069a';
+    const apiKey = process.env.AI_API_KEY || 'sk-a3f1a1633c00421c93985504d8fc988d';
     
     if (!apiKey) {
       return res.status(500).json({ 
@@ -296,7 +296,7 @@ ${fortuneText}
 app.post('/api/fortune/generate-image', async (req, res) => {
   try {
     const { fortuneText } = req.body;
-    const apiKey = process.env.AI_API_KEY || 'sk-368063b63be646edac7d2fa4bceb069a';
+    const apiKey = process.env.AI_API_KEY || 'sk-a3f1a1633c00421c93985504d8fc988d';
     
     if (!apiKey) {
       return res.status(500).json({ 
