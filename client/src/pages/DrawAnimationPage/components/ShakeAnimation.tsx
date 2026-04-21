@@ -125,12 +125,12 @@ export function ShakeAnimation({ onComplete, userMood, userThought, seasonFeel }
             isAI: true
           };
         } else {
-          logger.warn('AI返回非成功状态，使用基于用户输入的默认签文');
+          logger.warn('AI 返回非成功状态，使用基于用户输入的默认签文');
           fortuneResult = generateDefaultFortune(userThought, userMood, seasonFeel);
         }
 
       } catch (error) {
-        logger.error('AI签文生成异常，使用基于用户输入的默认签文', { error: error instanceof Error ? error.message : '未知错误' });
+        logger.error('AI 签文生成异常，使用基于用户输入的默认签文', { error: error instanceof Error ? error.message : '未知错误' });
         fortuneResult = generateDefaultFortune(userThought, userMood, seasonFeel);
       }
 
@@ -187,15 +187,16 @@ export function ShakeAnimation({ onComplete, userMood, userThought, seasonFeel }
       <AnimatePresence>
         {showAnimation && (
           <motion.div
-            className="text-center"
+            className="text-center w-full"
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 1.2 }}
             transition={{ duration: 0.5 }}
           >
             <motion.div
-              className="relative"
+              className="relative w-full flex justify-center"
               animate={animationControls}
+              style={{ transformOrigin: 'center center' }}
             >
               <div className="w-32 h-48 bg-gradient-to-b from-gray-800 to-gray-900 rounded-lg border-2 border-primary/40 relative overflow-hidden shadow-2xl">
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/10 to-transparent"></div>
