@@ -65,15 +65,8 @@ interface QianwenResponse {
  */
 export const callCapabilities = async (input: InputParams): Promise<Response> => {
   try {
-    const apiKey = process.env['AI_API_KEY'] || '';
-    
-    if (!apiKey) {
-      logger.error('阿里千问 API 密钥未配置');
-      return {
-        code: 1,
-        message: '阿里千问 API 密钥未配置',
-      };
-    }
+    // 硬编码 API Key（前期个人使用）
+    const apiKey = 'sk-a3f1a1633c00421c93985504d8fc988d';
     
     const systemPrompt = '你是一位精通易经与东方古典文化的隐世占卜师。';
     const userPrompt = `请根据以下用户心境：${input.mood}，生成一段神秘东方风格的签文，严格按照以下格式：
