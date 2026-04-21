@@ -30,7 +30,7 @@ export class FortuneTextService {
   }
 
   private parseFortuneResponse(response: string): any {
-    // 简单的解析逻辑，实际应用中需要更复杂的解析
+    // 解析 AI 返回的签文内容，参照图片格式精简输出
     const lines = response.split('\n').filter(line => line.trim());
     
     // 尝试提取签号 - 改进匹配逻辑
@@ -54,8 +54,8 @@ export class FortuneTextService {
       }
     }
 
-    // 尝试提取主签文
-    let mainText = '花开富贵，心想事成。贵人相助，事业通达。';
+    // 尝试提取主签文（四句七言诗）
+    let mainText = '忧思如茧缚灵台，云锁重楼月不开。阴 极阳生终有定，东风吹散雾中埃。';
     const mainTextMatch = response.match(/【主签文】\s*([^【]+)/) || 
                          response.match(/主签文 [:：]\s*([^\n【]+)/) ||
                          response.match(/([^.]+。[^.]+。[^.]+。[^.]+。)/);
@@ -63,17 +63,17 @@ export class FortuneTextService {
       mainText = mainTextMatch[1].trim();
     }
 
-    // 尝试提取文化引用
-    let culturalReference = '《易经》有云："天行健，君子以自强不息。"';
-    const referenceMatch = response.match(/【文化引用】\s*([^【]+)/) || 
-                          response.match(/文化引用 [:：]\s*([^\n【]+)/) ||
-                          response.match(/(《[^》]+》[^\n]+)/);
+    // 尝试提取白话解（简短解释）
+    let culturalReference = '白话解：困顿至极必转通达，先历艰难而后得吉祥。';
+    const referenceMatch = response.match(/【白话解】\s*([^【]+)/) || 
+                          response.match(/白话解 [:：]\s*([^\n【]+)/) ||
+                          response.match(/白话解 [：:]\s*([^\n]+)/);
     if (referenceMatch && referenceMatch[1]) {
-      culturalReference = referenceMatch[1].trim();
+      culturalReference = `白话解：${referenceMatch[1].trim()}`;
     }
 
     // 尝试提取卦象
-    let hexagram = '乾卦 - 天行健，君子以自强不息';
+    let hexagram = '否卦（䷋）';
     const hexagramMatch = response.match(/【卦象】\s*([^\n【]+)/) || 
                          response.match(/卦象 [:：]\s*([^\n【]+)/) ||
                          response.match(/([^卦]+卦 [^\n]+)/);
@@ -91,28 +91,42 @@ export class FortuneTextService {
   }
 
   private getDefaultFortune(mood: string): any {
-    // 基于用户心境返回不同的默认签文
+    // 基于用户心境返回不同的默认签文（精简格式）
     const defaultFortunes = [
       {
         fortune: '上上签',
         number: '甲子签',
-        mainText: '花开富贵，心想事成。贵人相助，事业通达。',
-        culturalReference: '《诗经》有云："桃之夭夭，灼灼其华。之子于归，宜其室家。"',
-        hexagram: '乾卦 - 天行健，君子以自强不息'
+        mainText: '花开富贵满庭芳，心想事成喜洋洋。贵人相助前程锦，事业通达福运长。',
+        culturalReference: '白话解：万事顺遂，贵人扶持，前程似锦。',
+        hexagram: '乾卦䷀'
       },
       {
         fortune: '中吉签',
         number: '乙丑签',
-        mainText: '静待时机，厚积薄发。守得云开见月明。',
-        culturalReference: '《道德经》曰："上善若水，水善利万物而不争。"',
-        hexagram: '坤卦 - 地势坤，君子以厚德载物'
+        mainText: '静待时机莫急躁，厚积薄发在今朝。守得云开见月明，春风得意马蹄骄。',
+        culturalReference: '白话解：耐心等待，时机成熟自会成功。',
+        hexagram: '坤卦䷁'
       },
       {
         fortune: '上吉签',
         number: '丙寅签',
-        mainText: '福星高照，喜气盈门。机缘巧合，收获满满。',
-        culturalReference: '《论语》云："有朋自远方来，不亦乐乎？"',
-        hexagram: '泰卦 - 天地交泰，万物亨通'
+        mainText: '福星高照喜临门，喜气盈门万事兴。机缘巧合天注定，收获满满福运生。',
+        culturalReference: '白话解：福气满满，喜事连连，万事亨通。',
+        hexagram: '泰卦䷊'
+      },
+      {
+        fortune: '中平签',
+        number: '丁卯签',
+        mainText: '平淡是真守成福，静心修身待时来。莫道前路多坎坷，自有贵人助君行。',
+        culturalReference: '白话解：平平淡淡才是真，守成待时自有福。',
+        hexagram: '艮卦䷳'
+      },
+      {
+        fortune: '下签',
+        number: '戊辰签',
+        mainText: '否极泰来终有时，转机将至莫迟疑。耐心等待云开日，终见曙光万事兴。',
+        culturalReference: '白话解：困境即将过去，转机就在前方。',
+        hexagram: '否卦䷋'
       }
     ];
 
